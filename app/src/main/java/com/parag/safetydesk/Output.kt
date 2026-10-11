@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.view.View
 import android.webkit.WebView
 import android.widget.LinearLayout
-import com.anthropic.models.messages.OutputConfig
 import org.json.JSONObject
 
 /**
@@ -74,7 +73,7 @@ class Output(private val a: MainActivity, private val title: () -> String) {
 
     /** Runs a request; returns false if one is already running. */
     fun run(prompt: String, web: Boolean = false, images: List<ByteArray> = emptyList(),
-            effort: OutputConfig.Effort = OutputConfig.Effort.MEDIUM, done: (String) -> Unit = {}): Boolean {
+            effort: Effort = Effort.MEDIUM, done: (String) -> Unit = {}): Boolean {
         if (busy) return false
         busy = true; error = ""; markdown = ""; paint(force = true)
         a.bg({ a.ai.ask(prompt, web, images, effort) { t -> a.ui { markdown = t; paint() } } }) { r ->

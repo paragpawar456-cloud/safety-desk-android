@@ -30,9 +30,16 @@ android {
         }
     }
 
+    // Sign with both the old (v1) and new (v2) schemes so every phone's installer accepts the APK.
+    signingConfigs.getByName("debug") { enableV1Signing = true; enableV2Signing = true }
+    signingConfigs.getByName("release") { enableV1Signing = true; enableV2Signing = true }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // R8 strips unused code and resources; the app uses no reflection, so no keep rules are needed.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
             signingConfig = if (file("release.jks").exists()) signingConfigs.getByName("release") else signingConfigs.getByName("debug")
         }
     }
@@ -51,8 +58,4 @@ android {
             )
         }
     }
-}
-
-dependencies {
-    implementation("com.anthropic:anthropic-java:2.71.0")
 }

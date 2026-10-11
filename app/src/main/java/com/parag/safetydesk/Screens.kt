@@ -13,7 +13,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
-import com.anthropic.models.messages.OutputConfig
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -246,7 +245,7 @@ class PhotoScreen(a: MainActivity) : Screen(a) {
                 out.run("Analyse the attached site photograph following Section 8 of the instructions. Location: ${loc.ifBlank { "not given" }}. ${if (note.isNotBlank()) "Focus: $note." else ""}\n" +
                     "Write the report for contractor follow-up: visible conditions, hazards and exposed persons, consequences, risk rating (provisional 5×5 unless a site matrix is given), immediate controls, permanent corrective actions, further information or inspection needed, and the limitations of photo-based inspection. Cite applicable Indian requirements only where you are confident; otherwise say what must be verified.\n" +
                     "Then end with one fenced ```json block containing an array of findings, one per hazard, each $FINDINGS_JSON_SPEC where CATS = ${JSONArray(Store.CATS)}.",
-                    images = listOf(im), effort = OutputConfig.Effort.HIGH) { full ->
+                    images = listOf(im), effort = Effort.HIGH) { full ->
                     val (report, json) = splitReport(full); out.set(report)
                     json?.let { runCatching { found += findingsFromJson(JSONArray(it), "Photo").onEach { f -> if (f.optString("location").isBlank()) f.put("location", loc) }; picked += found.indices; refresh() } }
                 }
@@ -476,7 +475,7 @@ class DocScreen(a: MainActivity, private val d: DocType, private val prefill: Ma
             f.view, webBox.margins(this, top = 8),
             button(if (out.markdown.isEmpty()) "Prepare with Claude" else "Prepare again", primary = true) {
                 values = f.values()
-                out.run(Docs.prompt(store, d, values), web, effort = if (d.id in setOf("incident", "legal", "audit", "permit", "hira")) OutputConfig.Effort.HIGH else OutputConfig.Effort.MEDIUM)
+                out.run(Docs.prompt(store, d, values), web, effort = if (d.id in setOf("incident", "legal", "audit", "permit", "hira")) Effort.HIGH else Effort.MEDIUM)
                 refresh()
             }.margins(this, top = 10),
             out.view().margins(this, top = 10),
