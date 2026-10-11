@@ -20,6 +20,11 @@ enum class Effort(val v: String) { LOW("low"), MEDIUM("medium"), HIGH("high") }
  * Blocking calls: run them off the main thread.
  */
 class Ai(private val ctx: Context, private val store: Store) {
+    companion object {
+        /** Tried in order when the chosen Gemini model is over its free limit or unavailable. */
+        val GEMINI_FALLBACKS = listOf("gemini-2.5-flash", "gemini-flash-lite-latest", "gemini-2.5-flash-lite")
+    }
+
     private val instructions: String by lazy { ctx.assets.open("agent_instructions.md").bufferedReader().readText() }
 
     fun system(): String {
@@ -46,6 +51,8 @@ class Ai(private val ctx: Context, private val store: Store) {
 
     // ---------------- Google Gemini (free tier) ----------------
 
+    private class GeminiHttp(val code: Int, val msg: String) : Exception(msg)
+
     private fun askGemini(turns: List<Turn>, web: Boolean, effort: Effort, onText: (String) -> Unit): String {
         val key = store.geminiKey
         if (key.isBlank()) throw AiException("Add your free Gemini API key in Settings first (aistudio.google.com → Get API key).")
@@ -59,13 +66,46 @@ class Ai(private val ctx: Context, private val store: Store) {
             parts.put(JSONObject().put("text", t.text))
             contents.put(JSONObject().put("role", if (t.user) "user" else "model").put("parts", parts))
         }
-        val body = JSONObject()
-            .put("system_instruction", JSONObject().put("parts", JSONArray().put(JSONObject().put("text", system()))))
-            .put("contents", contents)
-            .put("generationConfig", JSONObject().put("maxOutputTokens", 32000))
-        // Google Search grounding stands in for Claude's web search tool.
-        if (web) body.put("tools", JSONArray().put(JSONObject().put("google_search", JSONObject())))
-        val c = URL("https://generativelanguage.googleapis.com/v1beta/models/${store.model}:streamGenerateContent?alt=sse").openConnection() as HttpURLConnection
+        // Free-tier quotas differ per model and Google Search grounding has its own quota, so when one is
+        // refused (429) or missing (404) fall through to the next free model, then try again without search.
+        val chosen = store.model
+        val models = (listOf(chosen) + GEMINI_FALLBACKS).distinct()
+        val attempts = (if (web) models.map { it to true } else emptyList()) + models.map { it to false }
+        var last: GeminiHttp? = null
+        for ((model, search) in attempts) {
+            val body = JSONObject()
+                .put("system_instruction", JSONObject().put("parts", JSONArray().put(JSONObject().put("text", system()))))
+                .put("contents", contents)
+                .put("generationConfig", JSONObject().put("maxOutputTokens", 32000))
+            // Google Search grounding stands in for Claude's web search tool.
+            if (search) body.put("tools", JSONArray().put(JSONObject().put("google_search", JSONObject())))
+            try {
+                var text = geminiStream(key, model, body, onText)
+                val notes = buildList {
+                    if (model != chosen) add("answered by $model because $chosen was over its free limit")
+                    if (web && !search) add("web search was unavailable on the free limit, so legal references are from the model's own knowledge: verify them")
+                }
+                if (notes.isNotEmpty()) text += "\n\n_(Note: " + notes.joinToString("; ") + ".)_"
+                onText(text)
+                return text
+            } catch (e: GeminiHttp) {
+                last = e
+                if (e.code != 429 && e.code != 404 && e.code != 503) break
+            }
+        }
+        val e = last!!
+        throw AiException(when (e.code) {
+            400 -> if (e.msg.contains("API key", true)) "The Gemini API key was rejected. Check it in Settings." else "Gemini could not handle this request: ${e.msg}"
+            401, 403 -> "The Gemini API key was rejected or the Gemini API is not enabled for it. Create a new key at aistudio.google.com. (${e.msg})"
+            429 -> "All free Gemini models are over their limit for this key right now. Wait a few minutes and try again; the daily limit resets around midday IST. Google said: ${e.msg.take(300)}"
+            503 -> "Gemini is overloaded right now. Try again in a few minutes."
+            else -> "Gemini returned an error (${e.code}): ${e.msg.take(300)}"
+        })
+    }
+
+    /** One streaming Gemini request; returns the answer text, or throws [GeminiHttp] on an HTTP error. */
+    private fun geminiStream(key: String, model: String, body: JSONObject, onText: (String) -> Unit): String {
+        val c = URL("https://generativelanguage.googleapis.com/v1beta/models/$model:streamGenerateContent?alt=sse").openConnection() as HttpURLConnection
         c.requestMethod = "POST"; c.doOutput = true
         c.connectTimeout = 30_000; c.readTimeout = 600_000
         c.setRequestProperty("content-type", "application/json")
@@ -78,14 +118,7 @@ class Ai(private val ctx: Context, private val store: Store) {
             val code = c.responseCode
             if (code != 200) {
                 val msg = runCatching { JSONObject(c.errorStream.bufferedReader().readText()).getJSONObject("error").getString("message") }.getOrDefault("")
-                throw AiException(when (code) {
-                    400 -> if (msg.contains("API key", true)) "The Gemini API key was rejected. Check it in Settings." else "Gemini could not handle this request: $msg"
-                    401, 403 -> "The Gemini API key was rejected. Check it in Settings."
-                    404 -> "The model ${store.model} is not available for this key. Pick another model in Settings."
-                    429 -> "The free Gemini limit is used up for now. Wait a minute (or until tomorrow for the daily limit), or switch to Flash-Lite in Settings."
-                    503 -> "Gemini is overloaded right now. Try again in a few minutes."
-                    else -> "Gemini returned an error ($code): $msg"
-                })
+                throw GeminiHttp(code, msg)
             }
             c.inputStream.bufferedReader().useLines { lines ->
                 for (line in lines) {
@@ -109,6 +142,7 @@ class Ai(private val ctx: Context, private val store: Store) {
                 }
             }
         } catch (e: AiException) { throw e
+        } catch (e: GeminiHttp) { throw e
         } catch (e: Exception) { throw AiException("Could not reach Gemini. Check the internet connection. (${e.javaClass.simpleName}: ${e.message})")
         } finally { c.disconnect() }
         when (finish) {
@@ -118,7 +152,6 @@ class Ai(private val ctx: Context, private val store: Store) {
         }
         if (sb.isEmpty()) throw AiException("Gemini returned an empty answer. Try again.")
         if (sources.isNotEmpty()) sb.append("\n\n**Web sources used**\n").append(sources.entries.joinToString("\n") { "- [${it.value}](${it.key})" })
-        onText(sb.toString())
         return sb.toString()
     }
 

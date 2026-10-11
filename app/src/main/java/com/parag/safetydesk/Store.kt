@@ -83,7 +83,7 @@ class Store(private val ctx: Context) {
     }
 
     companion object {
-        val MODELS = listOf("gemini-flash-latest", "gemini-flash-lite-latest", "gemini-pro-latest", "claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5")
+        val MODELS = listOf("gemini-flash-latest", "gemini-flash-lite-latest", "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-pro-latest", "claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5")
         val CATS = listOf("Work at height", "Scaffolding & formwork", "Tower crane & hoist", "Lifting", "Excavation", "Electrical",
             "Hot work & fire", "PPE", "Housekeeping & storage", "Openings & edges", "Vehicles & plant", "Welfare & sanitation",
             "Dust, noise & environment", "Permit & documentation", "Other")
