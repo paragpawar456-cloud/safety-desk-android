@@ -15,7 +15,7 @@ class AiException(message: String) : Exception(message)
 enum class Effort(val v: String) { LOW("low"), MEDIUM("medium"), HIGH("high") }
 
 /**
- * Talks to Claude over the Messages API (plain HTTPS + JSON, no SDK, so the APK stays small),
+ * Talks to Google Gemini (free tier) or Anthropic Claude over plain HTTPS + JSON (no SDKs, so the APK stays small),
  * with the safety-manager instructions file as the system prompt.
  * Blocking calls: run them off the main thread.
  */
@@ -41,9 +41,92 @@ class Ai(private val ctx: Context, private val store: Store) {
      * Streams an answer. [onText] receives the whole answer so far on each update.
      * When [web] is true, Claude may search the web (Section 3 of the instructions).
      */
-    fun ask(turns: List<Turn>, web: Boolean = false, effort: Effort = Effort.MEDIUM, onText: (String) -> Unit): String {
+    fun ask(turns: List<Turn>, web: Boolean = false, effort: Effort = Effort.MEDIUM, onText: (String) -> Unit): String =
+        if (store.model.startsWith("gemini")) askGemini(turns, web, effort, onText) else askClaude(turns, web, effort, onText)
+
+    // ---------------- Google Gemini (free tier) ----------------
+
+    private fun askGemini(turns: List<Turn>, web: Boolean, effort: Effort, onText: (String) -> Unit): String {
+        val key = store.geminiKey
+        if (key.isBlank()) throw AiException("Add your free Gemini API key in Settings first (aistudio.google.com → Get API key).")
+        val contents = JSONArray()
+        for (t in turns) {
+            val parts = JSONArray()
+            if (t.user) t.images.forEach { img ->
+                parts.put(JSONObject().put("inline_data", JSONObject().put("mime_type", "image/jpeg")
+                    .put("data", android.util.Base64.encodeToString(img, android.util.Base64.NO_WRAP))))
+            }
+            parts.put(JSONObject().put("text", t.text))
+            contents.put(JSONObject().put("role", if (t.user) "user" else "model").put("parts", parts))
+        }
+        val body = JSONObject()
+            .put("system_instruction", JSONObject().put("parts", JSONArray().put(JSONObject().put("text", system()))))
+            .put("contents", contents)
+            .put("generationConfig", JSONObject().put("maxOutputTokens", 32000))
+        // Google Search grounding stands in for Claude's web search tool.
+        if (web) body.put("tools", JSONArray().put(JSONObject().put("google_search", JSONObject())))
+        val c = URL("https://generativelanguage.googleapis.com/v1beta/models/${store.model}:streamGenerateContent?alt=sse").openConnection() as HttpURLConnection
+        c.requestMethod = "POST"; c.doOutput = true
+        c.connectTimeout = 30_000; c.readTimeout = 600_000
+        c.setRequestProperty("content-type", "application/json")
+        c.setRequestProperty("x-goog-api-key", key)
+        val sb = StringBuilder()
+        val sources = LinkedHashMap<String, String>()
+        var finish = ""
+        try {
+            c.outputStream.use { it.write(body.toString().toByteArray()) }
+            val code = c.responseCode
+            if (code != 200) {
+                val msg = runCatching { JSONObject(c.errorStream.bufferedReader().readText()).getJSONObject("error").getString("message") }.getOrDefault("")
+                throw AiException(when (code) {
+                    400 -> if (msg.contains("API key", true)) "The Gemini API key was rejected. Check it in Settings." else "Gemini could not handle this request: $msg"
+                    401, 403 -> "The Gemini API key was rejected. Check it in Settings."
+                    404 -> "The model ${store.model} is not available for this key. Pick another model in Settings."
+                    429 -> "The free Gemini limit is used up for now. Wait a minute (or until tomorrow for the daily limit), or switch to Flash-Lite in Settings."
+                    503 -> "Gemini is overloaded right now. Try again in a few minutes."
+                    else -> "Gemini returned an error ($code): $msg"
+                })
+            }
+            c.inputStream.bufferedReader().useLines { lines ->
+                for (line in lines) {
+                    if (!line.startsWith("data:")) continue
+                    val ev = JSONObject(line.substring(5).trim())
+                    ev.optJSONObject("error")?.let { throw AiException("Gemini returned an error: " + it.optString("message")) }
+                    val cand = ev.optJSONArray("candidates")?.optJSONObject(0) ?: continue
+                    val parts = cand.optJSONObject("content")?.optJSONArray("parts")
+                    if (parts != null) for (i in 0 until parts.length()) {
+                        val p = parts.getJSONObject(i)
+                        if (p.optBoolean("thought")) continue
+                        val t = p.optString("text")
+                        if (t.isNotEmpty()) { sb.append(t); onText(sb.toString()) }
+                    }
+                    cand.optJSONObject("groundingMetadata")?.optJSONArray("groundingChunks")?.let { ch ->
+                        for (i in 0 until ch.length()) ch.getJSONObject(i).optJSONObject("web")?.let { w ->
+                            val uri = w.optString("uri"); if (uri.isNotEmpty()) sources[uri] = w.optString("title", uri)
+                        }
+                    }
+                    cand.optString("finishReason").takeIf { it.isNotEmpty() }?.let { finish = it }
+                }
+            }
+        } catch (e: AiException) { throw e
+        } catch (e: Exception) { throw AiException("Could not reach Gemini. Check the internet connection. (${e.javaClass.simpleName}: ${e.message})")
+        } finally { c.disconnect() }
+        when (finish) {
+            "SAFETY", "PROHIBITED_CONTENT", "BLOCKLIST", "RECITATION" ->
+                if (sb.isEmpty()) throw AiException("Gemini declined this request. Rephrase it with the site context and try again.")
+            "MAX_TOKENS" -> sb.append("\n\n_(Answer cut short — ask for a shorter section.)_")
+        }
+        if (sb.isEmpty()) throw AiException("Gemini returned an empty answer. Try again.")
+        if (sources.isNotEmpty()) sb.append("\n\n**Web sources used**\n").append(sources.entries.joinToString("\n") { "- [${it.value}](${it.key})" })
+        onText(sb.toString())
+        return sb.toString()
+    }
+
+    // ---------------- Anthropic Claude (paid) ----------------
+
+    private fun askClaude(turns: List<Turn>, web: Boolean, effort: Effort, onText: (String) -> Unit): String {
         val key = store.apiKey
-        if (key.isBlank()) throw AiException("Add your Anthropic API key in Settings first.")
+        if (key.isBlank()) throw AiException("Add your Anthropic API key in Settings, or pick a free Gemini model there.")
         val model = store.model
         val messages = JSONArray()
         for (t in turns) {

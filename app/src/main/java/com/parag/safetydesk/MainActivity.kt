@@ -75,7 +75,7 @@ class MainActivity : Activity() {
         setContentView(root)
 
         show(HomeScreen(this))
-        if (store.apiKey.isBlank()) show(SettingsScreen(this, firstRun = true))
+        if (store.apiKey.isBlank() && store.geminiKey.isBlank()) show(SettingsScreen(this, firstRun = true))
         handleShare(intent)
     }
 

@@ -126,6 +126,8 @@ class Form(private val ctx: Context) {
         val s = ctx.spinner(options, value); fields[key] = s; view.addView(s); return this
     }
 
+    fun field(key: String) = fields[key] as android.widget.EditText
+
     operator fun get(key: String): String = when (val v = fields[key]) {
         is EditText -> v.text.toString().trim()
         is Spinner -> v.selectedItem?.toString() ?: ""

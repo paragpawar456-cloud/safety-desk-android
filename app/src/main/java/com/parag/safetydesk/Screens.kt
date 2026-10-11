@@ -80,8 +80,9 @@ class SettingsScreen(a: MainActivity, private val firstRun: Boolean = false) : S
     override fun build(): View = with(a) {
         val s = store
         val f = Form(this)
-            .text("apiKey", "Anthropic API key", s.apiKey, hint = "sk-ant-…")
-            .choice("model", "Claude model", Store.MODELS, s.model)
+            .choice("model", "AI model", Store.MODELS, s.model)
+            .text("geminiKey", "Google Gemini API key (free)", s.geminiKey, hint = "AIza…")
+            .text("apiKey", "Anthropic API key (only for Claude models)", s.apiKey, hint = "sk-ant-…")
             .text("project", "Project name", s.pref("project"))
             .text("location", "Location", s.pref("location"), hint = "e.g. Wakad, Pune, Maharashtra")
             .text("client", "Client", s.pref("client"))
@@ -93,11 +94,11 @@ class SettingsScreen(a: MainActivity, private val firstRun: Boolean = false) : S
             .text("escL2", "Escalation L2 e-mail (site in-charge / PM)", s.pref("escL2"))
             .text("escL3", "Escalation L3 e-mail (project head)", s.pref("escL3"))
             .text("escL4", "Escalation L4 e-mail (corporate EHS / management)", s.pref("escL4"))
-        (f.view.getChildAt(1) as EditText).inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        for (k in listOf("geminiKey", "apiKey")) f.field(k).inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
         col(16,
-            if (firstRun) card(text("Welcome", 17f, C.INK, true), muted("Safety Desk uses Claude through your own Anthropic API key. Create one at console.anthropic.com → API keys (usage is billed to that account), paste it below and save. Then add your site details so documents are filled in correctly.")).margins(this, bottom = 8) else spacer(0),
+            if (firstRun) card(text("Welcome", 17f, C.INK, true), muted("Safety Desk works with Google Gemini for free. Open aistudio.google.com, sign in with your Google account, tap Get API key → Create API key, then paste it below and save. The free tier has daily limits, and Google may use what you send to improve its products, so avoid confidential data. Then add your site details so documents are filled in correctly.")).margins(this, bottom = 8) else spacer(0),
             f.view,
-            muted("Claude Opus 5.5 gives the best analysis; Sonnet 5.5 and Haiku 5.5 are faster and cheaper.").apply { setPadding(0, dp(8), 0, 0) },
+            muted("Gemini Flash is free and recommended. Flash-Lite is faster with higher free limits. Gemini Pro and the Claude models give deeper analysis but need a paid key.").apply { setPadding(0, dp(8), 0, 0) },
             button("Save settings", primary = true) {
                 s.setPrefs(f.values()); toast("Saved"); goBack()
             }.margins(this, top = 14),
@@ -138,7 +139,7 @@ class ChatScreen(a: MainActivity) : Screen(a) {
                 button("Open as document") { show(DocViewScreen(this, "Answer", t.text)) },
             ))
         }
-        if (busy && (turns.lastOrNull()?.user != false)) list.addView(muted("Claude is thinking…"))
+        if (busy && (turns.lastOrNull()?.user != false)) list.addView(muted("The agent is thinking…"))
         val box = input("Type your question…", draft, 2).apply { maxLines = 6 }
         box.addTextChangedListener(object : android.text.TextWatcher {
             override fun afterTextChanged(e: android.text.Editable?) { draft = e.toString() }
@@ -234,7 +235,7 @@ class PhotoScreen(a: MainActivity) : Screen(a) {
         val locIn = input("Tower / floor / location", loc).apply { setOnFocusChangeListener { v, _ -> loc = (v as EditText).text.toString() } }
         val noteIn = input("What should be checked? (optional)", note).apply { setOnFocusChangeListener { v, _ -> note = (v as EditText).text.toString() } }
         col(16,
-            muted("Take or choose a photo of the work area. Claude describes only what is visible, rates the risk and drafts the corrective actions (Section 8 of your instructions)."),
+            muted("Take or choose a photo of the work area. The AI describes only what is visible, rates the risk and drafts the corrective actions (Section 8 of your instructions)."),
             row(button("Take photo", primary = true) { takePhoto() }.margins(this, end = 8, weight = 1f), button("Choose photo") { pickImage() }.margins(this, weight = 1f)).margins(this, top = 10),
             if (image != null) img.margins(this, top = 10) else empty("No photo yet").margins(this, top = 10),
             label("Location"), locIn, label("Focus"), noteIn,
@@ -372,7 +373,7 @@ class FindingScreen(a: MainActivity, private val id: String?) : Screen(a) {
             label("Photo"), img,
             row(button("Take photo") { takePhoto() }.margins(this, end = 8, weight = 1f), button("Choose photo") { pickImage() }.margins(this, weight = 1f)),
             button("Save", primary = true) { save(r, f) }.margins(this, top = 14),
-            if (id != null) button("Draft corrective action request with Claude") {
+            if (id != null) button("Draft corrective action request with AI") {
                 show(DocScreen(this, Docs.byId("car"), mapOf("contractor" to f["responsible"], "location" to listOf(f["tower"], f["floor"], f["location"]).filter { it.isNotBlank() }.joinToString(", "),
                     "finding" to "${r.optString("id")}: ${f["condition"]}. Consequence: ${f["consequence"]}. Immediate control: ${f["immediate"]}.", "target" to Store.fmt(f["target"]))))
             } else spacer(0),
@@ -436,7 +437,7 @@ class IncidentScreen(a: MainActivity, private val id: String?) : Screen(a) {
                 if (f["description"].isBlank()) { toast("Describe what happened"); return@button }
                 f.values().forEach { (k, v) -> r.put(k, v) }; r.put("kind", "incident"); val s = store.save(r); toast("Saved ${s.optString("id")}"); goBack()
             }.margins(this, top = 14),
-            button("Investigate with Claude (Section 6)") {
+            button("Investigate with AI (Section 6)") {
                 show(DocScreen(this, Docs.byId("incident"), mapOf("type" to f["type"], "when" to "${Store.fmt(f["date"])} ${f["time"]}", "location" to f["location"],
                     "persons" to f["persons"] + if (f["contractor"].isNotBlank()) " (${f["contractor"]})" else "", "facts" to f["description"], "assumptions" to f["assumptions"], "actions" to f["actions"])))
             }.margins(this, top = 8),
@@ -473,7 +474,7 @@ class DocScreen(a: MainActivity, private val d: DocType, private val prefill: Ma
         col(16,
             if (d.register) muted("Uses the findings and incidents saved in this app for the period. Nothing is invented: missing figures are marked ‘not recorded’.") else spacer(0),
             f.view, webBox.margins(this, top = 8),
-            button(if (out.markdown.isEmpty()) "Prepare with Claude" else "Prepare again", primary = true) {
+            button(if (out.markdown.isEmpty()) "Prepare with AI" else "Prepare again", primary = true) {
                 values = f.values()
                 out.run(Docs.prompt(store, d, values), web, effort = if (d.id in setOf("incident", "legal", "audit", "permit", "hira")) Effort.HIGH else Effort.MEDIUM)
                 refresh()
@@ -523,7 +524,7 @@ class EscalationScreen(a: MainActivity) : Screen(a) {
 
     override fun build(): View = with(a) {
         val items = store.escalations()
-        val root = col(16, muted("Items that meet your escalation rules: critical risk, overdue corrective actions, high risk open for 2+ days, and serious incidents. Claude drafts the e-mail; you review it and send it yourself."))
+        val root = col(16, muted("Items that meet your escalation rules: critical risk, overdue corrective actions, high risk open for 2+ days, and serious incidents. The AI drafts the e-mail; you review it and send it yourself."))
         if (items.isEmpty()) root.addView(empty("Nothing needs escalating right now.").margins(this, top = 10))
         items.forEach { (why, r) ->
             val key = r.optString("id") + why

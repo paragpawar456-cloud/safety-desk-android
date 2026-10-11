@@ -58,7 +58,7 @@ class Output(private val a: MainActivity, private val title: () -> String) {
         lastPaint = now
         status?.text = when {
             error.isNotEmpty() -> error
-            busy && markdown.isEmpty() -> "Claude is thinking…"
+            busy && markdown.isEmpty() -> "The agent is thinking…"
             busy -> "Writing…"
             else -> ""
         }

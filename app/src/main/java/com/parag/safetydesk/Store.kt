@@ -23,6 +23,7 @@ class Store(private val ctx: Context) {
     fun setPrefs(values: Map<String, String>) { prefs.edit().apply { values.forEach { (k, v) -> putString(k, v) } }.apply() }
 
     val apiKey get() = pref("apiKey")
+    val geminiKey get() = pref("geminiKey")
     val model get() = pref("model", MODELS.first())
 
     // ---------- records ----------
@@ -82,7 +83,7 @@ class Store(private val ctx: Context) {
     }
 
     companion object {
-        val MODELS = listOf("claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5")
+        val MODELS = listOf("gemini-flash-latest", "gemini-flash-lite-latest", "gemini-pro-latest", "claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5")
         val CATS = listOf("Work at height", "Scaffolding & formwork", "Tower crane & hoist", "Lifting", "Excavation", "Electrical",
             "Hot work & fire", "PPE", "Housekeeping & storage", "Openings & edges", "Vehicles & plant", "Welfare & sanitation",
             "Dust, noise & environment", "Permit & documentation", "Other")
