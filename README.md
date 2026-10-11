@@ -27,3 +27,9 @@ Data stays on the phone (Settings → Save backup). Requires Android 10 or newer
 ## Build locally
 
 `./gradlew assembleRelease` with JDK 17 and the Android SDK (platform 35).
+
+## Trackers (v1.0.6)
+Fall protection, plant & equipment, TPI inspection, environment, air pollution & dust control, safety committee, labour camp and BOCW compliance trackers. Each watches its due dates, exports to CSV and can prepare a report with AI.
+
+## ISO 45001 & BOCW documents
+Management review (9.3), internal audit (9.2), evaluation of compliance (9.1.2), objectives & performance (6.2, 9.1), nonconformity & corrective action (10.2), BOCW compliance status, BOCW registers & returns checklist, safety committee formation, labour camp checklist and labour camp documents.

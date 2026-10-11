@@ -52,7 +52,7 @@ class Store(private val ctx: Context) {
     fun delete(id: String) { records.removeAll { it.optString("id") == id }; persist() }
 
     private fun nextId(kind: String): String {
-        val prefix = when (kind) { "finding" -> "F"; "incident" -> "INC"; "doc" -> "DOC"; else -> "R" }
+        val prefix = when (kind) { "finding" -> "F"; "incident" -> "INC"; "doc" -> "DOC"; else -> Trackers.byKind(kind)?.prefix ?: "R" }
         val n = records.count { it.optString("kind") == kind } + 1
         var id: String; var k = n
         do { id = "%s-%04d".format(prefix, k++) } while (get(id) != null)

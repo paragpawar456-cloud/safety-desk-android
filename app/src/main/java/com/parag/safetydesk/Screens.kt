@@ -43,6 +43,9 @@ class HomeScreen(a: MainActivity) : Screen(a) {
             c.addView(button("Review and escalate", primary = true) { show(EscalationScreen(this)) }.margins(this, top = 10, bottom = 0))
             root.addView(c.margins(this, top = 8, bottom = 12))
         }
+        val trkOverdue = Trackers.overdue(s)
+        if (trkOverdue > 0) root.addView(card(text("Trackers: $trkOverdue overdue", 15f, C.CRIT, true),
+            muted("Inspections, certificates or actions past their due date.")).apply { setOnClickListener { show(TrackersScreen(this@with)) } }.margins(this, bottom = 12))
         root.addView(h2("What do you need?"))
         val tiles = listOf(
             Triple("Ask the agent", "Any safety, legal or site question") { show(ChatScreen(this)) },
@@ -52,6 +55,8 @@ class HomeScreen(a: MainActivity) : Screen(a) {
             Triple("Prepare a document", "Checklists, HIRA, TBT, MoM, letters…") { show(CatalogScreen(this)) },
             Triple("EHS report", "Daily, weekly or monthly") { show(DocScreen(this, Docs.byId("report"))) },
             Triple("Incidents", "Log and investigate") { show(IncidentsScreen(this)) },
+            Triple("Trackers", "Fall protection, equipment, TPI, environment, air, camp…") { show(TrackersScreen(this)) },
+            Triple("ISO 45001 & BOCW", "Reports, safety committee, labour camp") { show(CatalogScreen(this, "ISO 45001 & BOCW reports")) },
             Triple("Legal & compliance", "Researched answers with sources") { show(DocScreen(this, Docs.byId("legal"))) },
             Triple("Saved documents", "${s.list("doc").size} kept on this phone") { show(SavedScreen(this)) },
             Triple("Settings", "API key, site details, contacts") { show(SettingsScreen(this)) },
@@ -446,14 +451,14 @@ class IncidentScreen(a: MainActivity, private val id: String?) : Screen(a) {
 }
 
 // ======================= Documents =======================
-class CatalogScreen(a: MainActivity) : Screen(a) {
-    override val title = "Prepare a document"
+class CatalogScreen(a: MainActivity, private val group: String? = null) : Screen(a) {
+    override val title = group ?: "Prepare a document"
     override fun build(): View = with(a) {
         val root = col(16)
-        Docs.ALL.groupBy { it.group }.forEach { (g, items) ->
+        Docs.ALL.filter { group == null || it.group == group }.groupBy { it.group }.forEach { (g, items) ->
             root.addView(h2(g))
             items.forEach { d ->
-                root.addView(card(text(d.title, 15f, C.INK, true), muted("Instructions section ${d.section}" + if (d.register) " · uses your register" else "" + if (d.web) " · searches the web" else ""))
+                root.addView(card(text(d.title, 15f, C.INK, true), muted("Instructions section ${d.section}" + (if (d.register) " · uses your register" else "") + (if (d.web) " · searches the web" else "")))
                     .apply { setOnClickListener { show(DocScreen(this@with, d)) } }.margins(this, bottom = 6))
             }
         }
