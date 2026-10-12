@@ -1,0 +1,1723 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⛑️</text></svg>">
+<title>Site Safety Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: dark site-office sidebar + concrete-grey work surface; hi-vis amber as the one accent. */
+:root{
+  --bg:#f2f4f8; --panel:#ffffff; --sunk:#f6f8fb; --ink:#16202e; --muted:#5e6b7a; --line:#e1e6ec;
+  --accent:#ffb300; --accent-ink:#0d2a4a; --accent-soft:#fff4d6;
+  --nav:#0d2a4a; --nav2:#1b4f86; --nav-ink:#c9d6e8; --nav-hi:#ffffff; --shadow:0 1px 2px #0d2a4a14,0 4px 14px #0d2a4a12;
+  --low:#2e8b57; --med:#b67d00; --high:#d35f17; --crit:#c62828; --ok:#2e8b57;
+  --low-bg:#e5f4ea; --med-bg:#fbf0d4; --high-bg:#fde6d8; --crit-bg:#fbe0e0;
+  --f-display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111316; --panel:#1a1d21; --sunk:#15171a; --ink:#e8ebef; --muted:#9aa3ae; --line:#2c3138;
+  --accent:#ffb81f; --accent-ink:#1d1600; --accent-soft:#3a2e0e;
+  --nav:#0a1626; --nav2:#12345a; --nav-ink:#aab8ca; --nav-hi:#ffffff; --shadow:0 1px 2px #0006,0 4px 14px #0004;
+  --low:#5cc58a; --med:#e3a82a; --high:#f08a4b; --crit:#ff6b6b; --ok:#5cc58a;
+  --low-bg:#183224; --med-bg:#352a0e; --high-bg:#3a2214; --crit-bg:#3d1a1a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111316; --panel:#1a1d21; --sunk:#15171a; --ink:#e8ebef; --muted:#9aa3ae; --line:#2c3138;
+  --accent:#ffb81f; --accent-ink:#1d1600; --accent-soft:#3a2e0e;
+  --nav:#0a1626; --nav2:#12345a; --nav-ink:#aab8ca; --nav-hi:#ffffff; --shadow:0 1px 2px #0006,0 4px 14px #0004;
+  --low:#5cc58a; --med:#e3a82a; --high:#f08a4b; --crit:#ff6b6b; --ok:#5cc58a;
+  --low-bg:#183224; --med-bg:#352a0e; --high-bg:#3a2214; --crit-bg:#3d1a1a; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5}
+*{box-sizing:border-box}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100%}
+.nav{background:var(--nav);color:var(--nav-ink);position:sticky;top:0;height:100vh;overflow-y:auto;padding-block:0 24px}
+.brand{padding:18px 18px 14px;border-bottom:1px solid #ffffff14}
+.brand .stripe{height:6px;margin:-18px -18px 14px;background:repeating-linear-gradient(-45deg,var(--accent) 0 9px,var(--nav) 9px 18px)}
+.brand b{display:block;font-family:var(--f-display);font-weight:800;font-size:19px;letter-spacing:.01em;color:var(--nav-hi);text-transform:uppercase}
+.brand small{font-size:12px;opacity:.75}
+.navgrp{padding:14px 10px 0}
+.navgrp h6{margin:0 8px 6px;font:600 10.5px var(--f-body);letter-spacing:.12em;text-transform:uppercase;opacity:.55}
+.nav button{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;background:none;border:0;border-radius:var(--r);padding:7px 10px;color:var(--nav-ink);cursor:pointer;font-size:13.5px}
+.nav button:hover{background:#ffffff10;color:var(--nav-hi)}
+.nav button[aria-current="page"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.nav .cnt{font:500 11px var(--f-mono);background:#ffffff1c;border-radius:10px;padding:0 7px}
+.nav button[aria-current="page"] .cnt{background:#0000001f}
+main{min-width:0;padding-inline:28px;padding-block:0 48px}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding-block:18px 14px;border-bottom:1px solid var(--line);margin-bottom:22px}
+.top h1{margin:0;font-family:var(--f-display);font-weight:800;font-size:26px;letter-spacing:-.01em;text-wrap:balance;flex:1 1 auto}
+.top .site{font-size:12.5px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--muted);white-space:nowrap}
+.chip i{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+.chip.on i{background:var(--ok)}
+.chip.warn i{background:var(--med)}
+h2{font-family:var(--f-display);font-weight:700;font-size:18px;margin:0 0 10px;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:700;font-size:15px;margin:0 0 8px}
+p{margin:0 0 10px}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+td.mono{white-space:nowrap}
+a{color:inherit;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:2px}
+.stack{display:flex;flex-direction:column;gap:18px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:18px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
+.panel.flat{background:var(--sunk)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,170px),1fr));gap:12px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.kpi .v{font:700 26px var(--f-display);font-variant-numeric:tabular-nums;line-height:1.15}
+.kpi .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.kpi .s{font-size:12px;color:var(--muted)}
+.kpi.alert{border-color:var(--crit);box-shadow:inset 4px 0 0 var(--crit)}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:7px 13px;cursor:pointer;font-weight:500;font-size:13.5px}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.pri:hover{filter:brightness(1.05)}
+.btn.ai::before{content:"";width:9px;height:9px;border-radius:2px;background:var(--accent);transform:rotate(45deg)}
+.btn.pri.ai::before{background:var(--accent-ink)}
+.btn.ghost{background:none;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--ink)}
+.btn.danger{color:var(--crit)}
+.btn:disabled{opacity:.55;cursor:wait}
+.btn:focus-visible,.nav button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+form.f{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr));gap:12px 14px}
+.fld{display:flex;flex-direction:column;gap:4px;min-width:0}
+.fld.full{grid-column:1/-1}
+.fld label{font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+input,select,textarea{background:var(--sunk);border:1px solid var(--line);border-radius:var(--r);padding:7px 9px;width:100%;min-width:0}
+textarea{min-height:84px;resize:vertical}
+textarea.big{min-height:180px;font-family:var(--f-mono);font-size:12.5px}
+.actions{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;background:var(--sunk);font-weight:600}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+td select{padding:3px 6px;font-size:12.5px;width:auto}
+.sev{display:inline-block;font-size:11px;font-weight:600;border-radius:4px;padding:1px 7px;white-space:nowrap}
+.sev.Low{background:var(--low-bg);color:var(--low)}
+.sev.Medium{background:var(--med-bg);color:var(--med)}
+.sev.High{background:var(--high-bg);color:var(--high)}
+.sev.Critical,.sev.Very{background:var(--crit-bg);color:var(--crit)}
+.st{font-size:11.5px;font-weight:600}
+.st.Open,.st.Non-compliant{color:var(--crit)} .st.Closed,.st.Compliant{color:var(--ok)} .st.Partial,.st.In{color:var(--med)}
+.ex{font:600 10px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px dashed var(--muted);border-radius:3px;padding:0 4px;margin-left:4px}
+.bar{height:8px;background:var(--sunk);border-radius:4px;overflow:hidden;border:1px solid var(--line)}
+.bar i{display:block;height:100%;background:var(--accent)}
+.bar i.over{background:var(--crit)}
+.hbars{display:flex;flex-direction:column;gap:7px}
+.hbars .r{display:grid;grid-template-columns:130px minmax(0,1fr) 34px;gap:10px;align-items:center;font-size:12.5px}
+.hbars .t{height:14px;background:var(--sunk);border-radius:3px;overflow:hidden}
+.hbars .t i{display:block;height:100%;background:var(--accent)}
+.list{display:flex;flex-direction:column}
+.list .it{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)}
+.list .it:last-child{border-bottom:0}
+.list .it .b{flex:1;min-width:0}
+.out{background:var(--sunk);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;min-width:0;overflow-wrap:anywhere}
+.out:empty{display:none}
+.out h1,.out h2,.out h3,.out h4{font-family:var(--f-display);margin:12px 0 6px;font-size:15px}
+.out h1{font-size:18px}
+.out ul,.out ol{margin:4px 0 8px;padding-left:20px}
+.out table{margin:8px 0;background:var(--panel)}
+.out .tw{margin:8px 0}
+.think{color:var(--muted);font-style:italic}
+.law{font-size:12.5px;padding:6px 0 6px 12px;border-left:3px solid var(--accent);margin:4px 0}
+.vcard{border:1px solid var(--line);border-radius:var(--r);padding:14px;background:var(--panel)}
+.vcard + .vcard{margin-top:10px}
+.drop{border:2px dashed var(--line);border-radius:var(--r);padding:22px;text-align:center;background:var(--sunk);cursor:pointer}
+.drop:hover{border-color:var(--accent)}
+.drop img{max-height:260px;border-radius:4px;margin-top:8px}
+.thumb{width:56px;height:56px;object-fit:cover;border-radius:4px;border:1px solid var(--line);flex:none}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tabs button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 12px;cursor:pointer;font-size:12.5px}
+.tabs button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.empty{padding:26px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:var(--r)}
+.chat{display:flex;flex-direction:column;gap:10px;max-height:60vh;overflow-y:auto;padding:4px}
+.msg{max-width:85%;padding:10px 13px;border-radius:10px;overflow-wrap:anywhere}
+.msg.u{align-self:flex-end;background:var(--accent-soft)}
+.msg.a{align-self:flex-start;background:var(--sunk);border:1px solid var(--line)}
+.rm{display:inline-block;min-width:26px;text-align:center;border-radius:3px;font:600 12px var(--f-mono);padding:1px 4px}
+.note{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin-top:6px}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:var(--r);font-size:13px;z-index:20;max-width:calc(100% - 32px)}
+details summary{cursor:pointer;font-weight:600}
+@media (max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .nav{position:sticky;top:env(safe-area-inset-top,0px);height:auto;z-index:5;padding:0;display:flex;overflow-x:auto;align-items:stretch}
+  .brand{flex:none;border:0;padding:10px 14px}
+  .brand .stripe{display:none}
+  .brand b{font-size:15px}
+  .brand small{display:none}
+  .navgrp{display:flex;padding:6px 4px;gap:2px;flex:none}
+  .navgrp h6{display:none}
+  .nav button{white-space:nowrap;width:auto}
+  .nav .cnt{display:none}
+  main{padding-inline:16px}
+  .hbars .r{grid-template-columns:96px minmax(0,1fr) 30px}
+}
+
+/* ---- v2 look: navy + safety amber, icons, motion ---- */
+.nav{background:linear-gradient(180deg,var(--nav),var(--nav2))}
+.nav .ni{font-style:normal;display:inline-block;width:22px;margin-right:6px;text-align:center}
+.nav button{transition:background .15s,transform .15s}
+.nav button:hover{transform:translateX(2px)}
+.brand .stripe{height:8px;background:repeating-linear-gradient(-45deg,var(--accent) 0 10px,#1b1b1b 10px 20px)}
+.top{border-bottom:0;position:relative}
+.top::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;border-radius:3px;background:repeating-linear-gradient(-45deg,var(--accent) 0 10px,#1b1b1b 10px 20px);opacity:.9}
+.panel,.kpi,.tw,.vcard{border-color:transparent;box-shadow:var(--shadow)}
+.kpi{border-radius:16px;transition:transform .18s,box-shadow .18s}
+.kpi:hover{transform:translateY(-3px)}
+.kpi.alert{border-color:var(--crit);box-shadow:var(--shadow),inset 4px 0 0 var(--crit)}
+.btn{border-radius:10px;transition:transform .12s,filter .15s}
+.btn:active{transform:scale(.96)}
+.btn.pri{background:linear-gradient(135deg,var(--accent),#ffc94d);box-shadow:0 2px 6px #ffb30055}
+#view>*{animation:up .35s ease both}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.hero{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:22px 24px;border-radius:20px;color:#fff;background:linear-gradient(135deg,var(--nav),var(--nav2));box-shadow:var(--shadow)}
+.hero h2{color:#fff;font-size:22px;margin:0 0 4px}
+.hero p{margin:0 0 4px;color:#c9d6e8}
+.hero .big{font-size:58px;line-height:1}
+.pill{display:inline-block;margin-top:10px;padding:5px 14px;border-radius:999px;font-weight:600;font-size:12.5px}
+.pill.good{background:#c8f2d4;color:#0b5d2a}.pill.bad{background:#ffd6d6;color:#7a1010}
+.tip{display:flex;gap:16px;align-items:center;width:100%;text-align:left;background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:14px 18px;cursor:pointer;box-shadow:var(--shadow);transition:transform .15s}
+.tip:hover{transform:translateY(-2px)}
+.tip.mand{border-color:#1565c055}.tip.warn{border-color:#ffc40088}.tip.proh,.tip.fire{border-color:#d32f2f55}.tip.safe{border-color:#2e7d3255}
+.tip .b{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;min-width:0}
+.tip .lbl{font:700 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tip .msg{font-size:15px;color:var(--ink)}
+.sign{flex:none;width:58px;height:58px;display:grid;place-items:center;font-size:25px;position:relative}
+.sign.mand{background:#1565c0;border-radius:50%}
+.sign.safe{background:#2e7d32;border-radius:10px}.sign.fire{background:#d32f2f;border-radius:10px}
+.sign.warn{background:#1b1b1b;clip-path:polygon(50% 2%,100% 96%,0 96%)}
+.sign.warn::before{content:"";position:absolute;inset:0;background:#ffc400;clip-path:polygon(50% 14%,90% 90%,10% 90%)}
+.sign.warn span{position:relative;top:7px;font-size:20px}
+.sign.proh{background:#fff;border:6px solid #d32f2f;border-radius:50%}
+.sign.proh::after{content:"";position:absolute;width:6px;height:120%;background:#d32f2f;transform:rotate(45deg);border-radius:2px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:14px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;background:var(--panel);border:0;border-radius:16px;padding:18px;cursor:pointer;box-shadow:var(--shadow);transition:transform .18s,box-shadow .18s;animation:up .35s ease both;animation-delay:calc(var(--i,0) * 40ms)}
+.tile:hover{transform:translateY(-4px);box-shadow:0 10px 24px #0d2a4a22}
+.tile b{font-family:var(--f-display);font-size:15px}
+.tile .ico{font-size:24px;width:48px;height:48px;display:grid;place-items:center;border-radius:14px;background:var(--accent-soft);margin-bottom:6px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+<div class="app">
+  <nav class="nav" id="nav" aria-label="Modules"></nav>
+  <main>
+    <header class="top">
+      <h1 id="ttl">Dashboard</h1>
+      <span class="site" id="siteLine"></span>
+      <span class="chip" id="storeChip"><i></i><span>Saved in this browser</span></span>
+      <span class="chip" id="aiChip"><i></i><span>Claude: connecting</span></span>
+    </header>
+    <div id="view"></div>
+  </main>
+</div>
+<div id="toast" hidden></div>
+<script>
+// ---------- Legal reference library (India) ----------
+// Section numbers are given only where well established. Always verify against the
+// currently notified text and the State's own BOCW / OSH rules before citing in a notice.
+const LAW = {
+  B7:   'BOCW Act 1996 s.7 – registration of establishment before work starts',
+  B32:  'BOCW Act 1996 ss.32–37 – drinking water, latrines & urinals, accommodation, crèche, first-aid, canteen',
+  B36:  'BOCW Act 1996 s.36 – first-aid boxes equipped with prescribed contents',
+  B38:  'BOCW Act 1996 s.38 – safety committee and safety officers (500+ building workers)',
+  B39:  'BOCW Act 1996 s.39 – notice of accidents causing death or injury preventing work for 48 hours or more',
+  B40:  'BOCW Act 1996 s.40 – safety and health measures as prescribed by the Central/State Rules',
+  B44:  'BOCW Act 1996 s.44 – employer responsible for adequate supervision and safety of every worker',
+  B46:  'BOCW Act 1996 s.46 – notice of commencement and completion of work (30 days before start)',
+  B47:  'BOCW Act 1996 s.47 – penalty for contravening safety provisions: up to 3 months imprisonment and/or ₹2,000 fine, ₹100/day if continued',
+  BR_PPE:  'BOCW Central Rules 1998 – personal protective equipment: helmets, safety footwear, gloves, goggles, harness to be provided and used',
+  BR_HT:   'BOCW Central Rules 1998 – work at height: guard-rails & toe-boards at open edges, covers on openings, safety nets/harness where guarding is impracticable',
+  BR_SC:   'BOCW Central Rules 1998 – scaffolds: erected by competent person, sound material, guard-rails, toe-boards, working platforms, inspected before use',
+  BR_LAD:  'BOCW Central Rules 1998 – ladders: sound construction, secured, extend at least 1 m above landing',
+  BR_EX:   'BOCW Central Rules 1998 – excavation & tunnelling: shoring/sloping, barricades, safe access, spoil kept clear of edge, daily inspection',
+  BR_EL:   'BOCW Central Rules 1998 – electrical safety at site: insulated cables, protected distribution boards, earthing, earth-leakage protection',
+  BR_LIFT: 'BOCW Central Rules 1998 – lifting appliances & gear: tested and examined by competent person, SWL marked, certified operators, signaller',
+  BR_FIRE: 'BOCW Central Rules 1998 – fire protection: extinguishers, fire watchers, hot-work precautions',
+  BR_HK:   'BOCW Central Rules 1998 – stacking of materials, housekeeping and disposal of debris',
+  BR_VEH:  'BOCW Central Rules 1998 – transport & earth-moving equipment: trained drivers, reversing alarms, banksman/signaller',
+  BR_CS:   'BOCW Central Rules 1998 – confined spaces: gas testing, ventilation, permit, standby person',
+  BR_DEM:  'BOCW Central Rules 1998 – demolition: planned sequence, competent supervision, exclusion zone',
+  BR_FW:   'BOCW Central Rules 1998 – formwork & concreting: designed props, inspection before and during pour',
+  BR_MED:  'BOCW Central Rules 1998 – medical examination of workers and occupational health surveillance',
+  BR_LIGHT:'BOCW Central Rules 1998 – adequate lighting at workplaces, passages and stairs',
+  OSH6:  'OSH Code 2020 s.6 – employer duty to keep the workplace free from hazards that cause or are likely to cause injury',
+  OSH10: 'OSH Code 2020 s.10 – notice of accidents and dangerous occurrences',
+  OSHC:  'OSH Code 2020 – safety committee and safety officers (applies as your State notifies its rules)',
+  FA:    'Factories Act 1948 – applies to batching plants, precast yards and workshops registered as factories (s.7A general duties, s.88 notice of accident)',
+  NBC7:  'National Building Code 2016, Part 7 – Constructional Practices and Safety',
+  NBC4:  'National Building Code 2016, Part 4 – Fire and Life Safety',
+  CEA:   'CEA (Measures relating to Safety and Electric Supply) Regulations 2023',
+  GCR:   'Gas Cylinder Rules 2016 (PESO) – storage, handling, upright and secured cylinders',
+  EXR:   'Explosives Rules 2008 – licensed blasting, shot-firer, exclusion zone',
+  CLRA:  'Contract Labour (R&A) Act 1970 – s.7 principal employer registration, s.12 contractor licence',
+  CHILD: 'Child and Adolescent Labour (Prohibition & Regulation) Act 1986 – no child below 14; no adolescent (14–18) in hazardous occupations including construction',
+  EC:    'Employees’ Compensation Act 1923 – compensation for injury or death arising out of employment',
+  CDW:   'Construction & Demolition Waste Management Rules 2016',
+  CESS:  'BOCW Welfare Cess Act 1996 – cess at 1% of cost of construction',
+  IS2925:  'IS 2925:1984 – Industrial safety helmets',
+  IS15298: 'IS 15298 – Personal protective equipment: safety footwear',
+  IS3521:  'IS 3521:1999 – Industrial safety belts and full-body harnesses',
+  IS5983:  'IS 5983 – Eye protectors',
+  IS11057: 'IS 11057:1984 – Industrial safety nets',
+  IS3696:  'IS 3696 (Part 1):1987 Scaffolds; (Part 2):1991 Ladders – safety code',
+  IS4014:  'IS 4014 (Parts 1 & 2):1967 – Steel tubular scaffolding',
+  IS4912:  'IS 4912:1978 – Floor and wall openings, railings and toe-boards',
+  IS13416: 'IS 13416 (Parts 1–5) – Preventive measures against hazards at workplaces (falling material, falls, debris, timber, fire)',
+  IS3764:  'IS 3764:1992 – Excavation work: code of safety',
+  IS4130:  'IS 4130:1991 – Demolition of buildings: code of safety',
+  IS7969:  'IS 7969:1975 – Handling and storage of building materials',
+  IS13367: 'IS 13367 (Part 1):1992 – Safe use of cranes',
+  IS7293:  'IS 7293:1974 – Working with construction machinery',
+  IS3016:  'IS 3016:1982 – Fire precautions in welding and cutting operations',
+  IS818:   'IS 818:1968 – Safety and health in electric and gas welding and cutting',
+  IS3043:  'IS 3043:2018 – Code of practice for earthing',
+  IS732:   'IS 732:2019 – Electrical wiring installations',
+  IS2190:  'IS 2190:2010 – Selection, installation and maintenance of portable fire extinguishers',
+  IS9457:  'IS 9457 – Safety colours and safety signs',
+  IS3786:  'IS 3786:1983 – Computation of frequency and severity rates for industrial injuries',
+  IS14489: 'IS 14489:2018 – Occupational safety and health audit',
+  ISO45001:'IS/ISO 45001:2018 – OH&S management systems',
+  IS5121:  'IS 5121 – Safety code for piling and other deep foundations',
+};
+const L = k => LAW[k] || k;
+
+const CATS = ['PPE','Work at height','Scaffolding','Excavation','Electrical','Hot work & fire','Lifting & cranes','Vehicles & plant','Housekeeping','Openings & barricading','Formwork & concreting','Confined space','Welfare & health','Environment','General'];
+const SEVS = ['Low','Medium','High','Critical'];
+
+// ---------- Violation library (used for photo analysis fallback and lookup) ----------
+const VIOL = [
+  { id:'helmet', cat:'PPE', sev:'High', title:'Worker without safety helmet',
+    hazard:'Head injury from falling objects or striking fixed structures.',
+    laws:['B40','BR_PPE','IS2925','OSH6','B44'],
+    fix:['Stop the worker and issue an ISI-marked helmet (IS 2925) with chin strap fastened.','Enforce “No helmet, no entry” at the gate and at each work front.','Record in TBT and issue a warning letter to the contractor for repeat cases.'] },
+  { id:'harness', cat:'Work at height', sev:'Critical', title:'Work at height without full-body harness / not anchored',
+    hazard:'Fall from height (above 2 m) leading to fatality or serious injury.',
+    laws:['B40','BR_HT','BR_PPE','IS3521','IS11057','NBC7','OSH6','B47'],
+    fix:['Bring the worker down immediately; resume only with full-body harness (IS 3521) anchored to a rated point or lifeline.','Install horizontal lifeline / vertical lifeline with fall arrester.','Issue a work-at-height permit; check the worker’s height-fitness (BP, vertigo) record.','Provide safety nets (IS 11057) below the work area where anchoring is impracticable.'] },
+  { id:'edge', cat:'Openings & barricading', sev:'Critical', title:'Unprotected edge, shaft or floor opening',
+    hazard:'Fall of persons or material through open edges, lift shafts, ducts and floor cut-outs.',
+    laws:['B40','BR_HT','IS4912','IS13416','NBC7'],
+    fix:['Barricade immediately with rigid guard-rail (top rail ~1 m, mid-rail, toe-board) per IS 4912.','Cover floor openings with secured, marked covers able to take the expected load.','Provide warning signage (IS 9457) and keep a daily opening register.'] },
+  { id:'scaffold', cat:'Scaffolding', sev:'High', title:'Defective or incomplete scaffolding',
+    hazard:'Collapse of scaffold or fall from platform due to missing planks, guard-rails, base plates or ties.',
+    laws:['B40','BR_SC','IS3696','IS4014','NBC7'],
+    fix:['Tag the scaffold RED (do not use) until corrected.','Complete working platform with full planks, guard-rails, toe-boards, base plates, sole boards, bracing and ties.','Competent scaffolding inspector to inspect and green-tag before use and every 7 days or after bad weather.'] },
+  { id:'ladder', cat:'Work at height', sev:'Medium', title:'Unsafe ladder use',
+    hazard:'Fall due to unsecured, damaged or improvised ladders.',
+    laws:['B40','BR_LAD','IS3696'],
+    fix:['Remove damaged or makeshift ladders from site.','Secure at top, place at 1:4 angle, extend at least 1 m above the landing.','Maintain three points of contact; no carrying of material in hand while climbing.'] },
+  { id:'excavation', cat:'Excavation', sev:'Critical', title:'Unsafe excavation (no shoring/sloping, no barricade, spoil at edge)',
+    hazard:'Cave-in burying workers; persons or vehicles falling into the pit.',
+    laws:['B40','BR_EX','IS3764','NBC7','OSH6'],
+    fix:['Stop work inside the trench until it is sloped, benched or shored for its depth and soil type.','Keep spoil and machinery at least 1 m (or depth-based distance) from the edge.','Hard barricade with reflective tape and night lamps; provide ladder access every ~30 m.','Daily inspection by a competent person before entry; locate underground services first.'] },
+  { id:'electrical', cat:'Electrical', sev:'High', title:'Unsafe temporary electrical installation',
+    hazard:'Electric shock or fire from bare joints, damaged cables, open DBs, no earth-leakage protection.',
+    laws:['B40','BR_EL','CEA','IS3043','IS732'],
+    fix:['Isolate the faulty circuit and apply lock-out / tag-out.','Use industrial plugs and sockets, armoured or double-insulated cables, no taped joints.','Provide RCCB/ELCB (30 mA) on every outgoing circuit; test earthing (IS 3043) and record.','Only a licensed electrician to work on installations; cables routed overhead or protected.'] },
+  { id:'hotwork', cat:'Hot work & fire', sev:'High', title:'Hot work without fire precautions',
+    hazard:'Fire from welding/cutting sparks; burns and eye injury.',
+    laws:['B40','BR_FIRE','IS3016','IS818','GCR','NBC4'],
+    fix:['Issue a hot-work permit; remove combustibles within 11 m or cover with fire blankets.','Keep a charged extinguisher (IS 2190) and a fire watcher during and 30 minutes after work.','Use flashback arrestors on both cylinders; welder to wear face shield, apron and gloves.'] },
+  { id:'cylinder', cat:'Hot work & fire', sev:'High', title:'Gas cylinders unsecured or stored wrongly',
+    hazard:'Cylinder fall, valve damage, fire or explosion.',
+    laws:['GCR','B40','IS3016'],
+    fix:['Store cylinders upright, chained, in a ventilated cage with oxygen and fuel gas separated.','Keep valve caps on when not in use; use a cylinder trolley for movement.','No cylinders inside basements or confined spaces.'] },
+  { id:'lifting', cat:'Lifting & cranes', sev:'Critical', title:'Unsafe lifting operation',
+    hazard:'Dropped load, crane overturning, crush injuries.',
+    laws:['B40','BR_LIFT','IS13367','OSH6'],
+    fix:['Stop the lift. Use only tested cranes and tackles with valid competent-person certificates and SWL marked.','Prepare a lifting plan for critical lifts; certified operator and rigger/signaller.','Barricade the swing radius; tag lines on loads; no one under suspended load.'] },
+  { id:'vehicle', cat:'Vehicles & plant', sev:'High', title:'Unsafe vehicle or plant movement',
+    hazard:'Workers struck or run over by reversing dumpers, JCB, transit mixers.',
+    laws:['B40','BR_VEH','IS7293'],
+    fix:['Provide a trained banksman and working reverse alarm / camera.','Segregate pedestrian walkways from vehicle routes; set site speed limit.','Check operator licence, fitness and daily vehicle checklist.'] },
+  { id:'housekeeping', cat:'Housekeeping', sev:'Medium', title:'Poor housekeeping / unsafe material stacking',
+    hazard:'Slips, trips, falling material, fire load, blocked access.',
+    laws:['B40','BR_HK','IS7969','CDW'],
+    fix:['Clear debris, protruding nails and rebars (provide rebar caps).','Stack materials on firm level ground at safe heights per IS 7969.','Fix daily housekeeping time per gang and inspect at shift end.'] },
+  { id:'falling', cat:'Work at height', sev:'High', title:'Risk of falling material',
+    hazard:'Objects falling from upper floors onto people below.',
+    laws:['B40','BR_HT','IS13416','IS11057'],
+    fix:['Provide toe-boards, debris nets and catch platforms at upper floors.','Barricade the drop zone below and mark it with signage.','Use chutes for debris; no throwing of material from height.'] },
+  { id:'formwork', cat:'Formwork & concreting', sev:'High', title:'Unsafe formwork or staging',
+    hazard:'Formwork collapse during concreting.',
+    laws:['B40','BR_FW','NBC7'],
+    fix:['Verify prop spacing, bracing and base plates against the formwork design.','Engineer to sign the pre-pour checklist; monitor props during the pour.','Keep people out from under the slab during pouring.'] },
+  { id:'ppe_other', cat:'PPE', sev:'Medium', title:'Missing safety shoes, gloves, goggles or hi-vis jacket',
+    hazard:'Foot, hand, eye injuries; poor visibility to vehicles.',
+    laws:['B40','BR_PPE','IS15298','IS5983'],
+    fix:['Issue task-appropriate PPE and record it in the PPE issue register.','Supervisor to check PPE at the start of each shift.','Deduct nothing from wages for PPE; it is the employer’s cost.'] },
+  { id:'grinder', cat:'Hot work & fire', sev:'High', title:'Grinder / power tool without guard',
+    hazard:'Disc burst, cuts, eye injury.',
+    laws:['B40','OSH6','BR_EL'],
+    fix:['Remove the tool from use until the guard is refitted.','Use the correct disc size and RPM rating; face shield and gloves mandatory.','Tools to be inspected and colour-coded monthly.'] },
+  { id:'confined', cat:'Confined space', sev:'Critical', title:'Confined space entry without permit or gas test',
+    hazard:'Asphyxiation, toxic gas, engulfment.',
+    laws:['B40','BR_CS','OSH6'],
+    fix:['Stop entry. Issue a confined-space permit after gas testing (O₂, LEL, H₂S, CO).','Provide forced ventilation, a standby attendant and a rescue tripod.','Continuous gas monitoring while work continues.'] },
+  { id:'welfare', cat:'Welfare & health', sev:'Medium', title:'Welfare facilities missing (water, toilets, first-aid, crèche)',
+    hazard:'Ill health and statutory non-compliance.',
+    laws:['B32','B36','B40','OSH6'],
+    fix:['Provide wholesome drinking water, separate toilets for men and women, and a stocked first-aid box.','Provide a crèche where the State threshold of women workers is met; rest shelters and canteen as applicable.'] },
+  { id:'child', cat:'Welfare & health', sev:'Critical', title:'Underage worker on site',
+    hazard:'Child or adolescent exposed to hazardous work; criminal offence.',
+    laws:['CHILD','CLRA','B44'],
+    fix:['Remove the person from work immediately and verify age documents.','Report to HR/contractor management; strengthen gate verification with ID proof.'] },
+  { id:'lighting', cat:'General', sev:'Medium', title:'Inadequate lighting for night work',
+    hazard:'Trips, falls and collisions in poorly lit areas.',
+    laws:['B40','BR_LIGHT','NBC7'],
+    fix:['Provide adequate lighting at work fronts, stairs, passages and edges.','Use hand lamps on reduced voltage in wet or confined areas.'] },
+  { id:'dust', cat:'Environment', sev:'Medium', title:'Dust / silica exposure',
+    hazard:'Respiratory illness; neighbour complaints; pollution-board action.',
+    laws:['OSH6','CDW','BR_MED'],
+    fix:['Wet cutting, water sprinkling, screens and covered stockpiles.','Provide N95/FFP2 respirators for cutting and grinding.','Cover trucks carrying loose material.'] },
+];
+
+// ---------- HIRA library: activity -> rows ----------
+// L = likelihood 1–5, S = severity 1–5, rL/rS = residual after controls
+const HIRA_LIB = {
+  'Excavation & trenching': [
+    {h:'Collapse of excavation sides',c:'Burial, fatality',L:3,S:5,ctrl:'Slope/bench or shore per depth and soil; competent person daily inspection; no entry after rain without check',rL:1,rS:5,law:'IS3764'},
+    {h:'Fall of persons/vehicles into pit',c:'Fracture, fatality',L:3,S:4,ctrl:'Hard barricade 1 m from edge, reflective tape, night lamps, stop blocks for vehicles',rL:1,rS:4,law:'BR_EX'},
+    {h:'Striking underground services',c:'Electrocution, gas leak',L:2,S:5,ctrl:'Service drawings, cable locator, hand-dig trial pits, excavation permit',rL:1,rS:5,law:'BR_EX'},
+    {h:'Water ingress / flooding',c:'Drowning, collapse',L:2,S:4,ctrl:'Dewatering pumps, earth bunds, monitoring after rain',rL:1,rS:4,law:'IS3764'},
+    {h:'Spoil heap or machine near edge',c:'Surcharge collapse',L:3,S:4,ctrl:'Keep spoil and plant beyond the safe distance from edge',rL:1,rS:4,law:'BR_EX'},
+  ],
+  'Work at height': [
+    {h:'Fall from open edge or slab',c:'Fatality',L:3,S:5,ctrl:'Edge guard-rails with toe-board, full-body harness anchored 100% tie-off, height permit',rL:1,rS:5,law:'BR_HT'},
+    {h:'Fall through floor opening / shaft',c:'Fatality',L:3,S:5,ctrl:'Secured covers or rigid barricade; opening register; signage',rL:1,rS:5,law:'IS4912'},
+    {h:'Falling material on people below',c:'Head injury',L:3,S:4,ctrl:'Toe-boards, debris nets, exclusion zone below, tool lanyards',rL:1,rS:4,law:'IS13416'},
+    {h:'Worker unfit for height work',c:'Fall',L:2,S:5,ctrl:'Height-fitness check (BP, vertigo, alcohol), induction, buddy system',rL:1,rS:5,law:'BR_MED'},
+  ],
+  'Scaffolding erection & use': [
+    {h:'Scaffold collapse',c:'Multiple injuries',L:2,S:5,ctrl:'Erect per IS 4014 by trained gang; base plates, sole boards, ties, bracing; load limits displayed',rL:1,rS:5,law:'IS4014'},
+    {h:'Fall from scaffold platform',c:'Fatality',L:3,S:5,ctrl:'Full planked platform, guard-rails, toe-boards, harness during erection',rL:1,rS:5,law:'BR_SC'},
+    {h:'Use of uninspected scaffold',c:'Collapse/fall',L:3,S:4,ctrl:'Green/red tag system, weekly and post-weather inspection by competent person',rL:1,rS:4,law:'IS3696'},
+  ],
+  'Concreting & formwork': [
+    {h:'Formwork/staging collapse during pour',c:'Multiple fatalities',L:2,S:5,ctrl:'Designed formwork, engineer pre-pour check, monitor props, no one under slab',rL:1,rS:5,law:'BR_FW'},
+    {h:'Cement contact with skin/eyes',c:'Burns, dermatitis',L:3,S:2,ctrl:'Gloves, gumboots, goggles; eye-wash station',rL:2,rS:2,law:'BR_PPE'},
+    {h:'Concrete pump line burst / whip',c:'Struck-by injury',L:2,S:4,ctrl:'Inspect couplings, secure lines, exclusion zone at pump',rL:1,rS:4,law:'IS7293'},
+    {h:'Vibrator electric shock',c:'Electrocution',L:2,S:5,ctrl:'RCCB, earthed vibrator, no damaged cables',rL:1,rS:5,law:'BR_EL'},
+  ],
+  'Temporary electrical work': [
+    {h:'Contact with live parts',c:'Electrocution',L:3,S:5,ctrl:'Licensed electrician, LOTO, insulated tools, enclosed DBs',rL:1,rS:5,law:'CEA'},
+    {h:'Earth leakage through damaged cable',c:'Shock, fire',L:3,S:4,ctrl:'30 mA RCCB on all outgoings, earth pit test record, cable routing overhead',rL:1,rS:4,law:'IS3043'},
+    {h:'Overloading / short circuit',c:'Fire',L:2,S:4,ctrl:'Rated MCBs, no loose joints, fire extinguisher (CO₂) near DB',rL:1,rS:4,law:'IS732'},
+  ],
+  'Welding, cutting & hot work': [
+    {h:'Fire from sparks',c:'Fire, burns',L:3,S:4,ctrl:'Hot-work permit, combustibles removed, fire watcher, extinguisher',rL:1,rS:4,law:'IS3016'},
+    {h:'Cylinder leak / flashback',c:'Explosion',L:2,S:5,ctrl:'Flashback arrestors, leak test, cylinders upright and chained',rL:1,rS:5,law:'GCR'},
+    {h:'Arc eye and fumes',c:'Eye injury, respiratory',L:3,S:3,ctrl:'Welding shield, screens, ventilation, respirator',rL:1,rS:3,law:'IS818'},
+  ],
+  'Lifting with crane / hydra': [
+    {h:'Dropped load',c:'Fatality',L:2,S:5,ctrl:'Certified tackles, lifting plan, tag lines, no one under load',rL:1,rS:5,law:'BR_LIFT'},
+    {h:'Crane overturn',c:'Multiple fatalities',L:2,S:5,ctrl:'Outriggers on firm base, load chart, SLI/ALI working, wind limits',rL:1,rS:5,law:'IS13367'},
+    {h:'Contact with overhead power line',c:'Electrocution',L:2,S:5,ctrl:'Maintain clearance per CEA, spotter, goal posts',rL:1,rS:5,law:'CEA'},
+  ],
+  'Plant & vehicle movement': [
+    {h:'Pedestrian struck by reversing vehicle',c:'Fatality',L:3,S:5,ctrl:'Banksman, reverse alarm, segregated walkways, speed limit',rL:1,rS:5,law:'BR_VEH'},
+    {h:'Untrained operator',c:'Collision, overturn',L:2,S:4,ctrl:'Licence and competency check, daily checklist, seat-belt',rL:1,rS:4,law:'IS7293'},
+  ],
+  'Masonry & plastering': [
+    {h:'Fall from makeshift staging',c:'Fracture',L:3,S:4,ctrl:'Proper scaffold/mobile tower with guard-rails',rL:1,rS:4,law:'BR_SC'},
+    {h:'Manual handling of blocks',c:'Back injury',L:3,S:2,ctrl:'Mechanical lifting, team lift, training',rL:2,rS:2,law:'OSH6'},
+    {h:'Mortar splash to eyes',c:'Eye injury',L:3,S:2,ctrl:'Goggles, eye-wash',rL:1,rS:2,law:'BR_PPE'},
+  ],
+  'Demolition': [
+    {h:'Premature collapse of structure',c:'Fatality',L:2,S:5,ctrl:'Engineer’s demolition plan, top-down sequence, competent supervision',rL:1,rS:5,law:'IS4130'},
+    {h:'Falling debris',c:'Head injury',L:3,S:4,ctrl:'Exclusion zone, chutes, nets, hard barricades',rL:1,rS:4,law:'BR_DEM'},
+    {h:'Dust and noise',c:'Respiratory, hearing loss',L:4,S:2,ctrl:'Water suppression, N95, ear plugs, screens',rL:2,rS:2,law:'CDW'},
+  ],
+  'Confined space work': [
+    {h:'Oxygen deficiency / toxic gas',c:'Fatality',L:3,S:5,ctrl:'Permit, gas test, forced ventilation, continuous monitoring',rL:1,rS:5,law:'BR_CS'},
+    {h:'Delayed rescue',c:'Fatality',L:2,S:5,ctrl:'Standby attendant, tripod & winch, rescue drill',rL:1,rS:5,law:'BR_CS'},
+  ],
+  'Piling': [
+    {h:'Rig overturn',c:'Fatality',L:2,S:5,ctrl:'Level firm platform, working mats, wind limits',rL:1,rS:5,law:'IS5121'},
+    {h:'Fall into open bore',c:'Fatality',L:3,S:5,ctrl:'Cover/barricade bores immediately',rL:1,rS:5,law:'IS5121'},
+  ],
+};
+
+// ---------- Statutory compliance checklist ----------
+const COMPLIANCE = [
+  {code:'reg', grp:'Registrations & licences', item:'BOCW registration of establishment', law:'B7', freq:'Before start'},
+  {code:'notice', grp:'Registrations & licences', item:'Notice of commencement of work to Inspector', law:'B46', freq:'30 days before start'},
+  {code:'cess', grp:'Registrations & licences', item:'BOCW welfare cess assessed and paid', law:'CESS', freq:'As assessed'},
+  {code:'clra', grp:'Registrations & licences', item:'Principal employer registration & contractor labour licences', law:'CLRA', freq:'Before deployment'},
+  {code:'ec', grp:'Registrations & licences', item:'Employees’ Compensation insurance / ESIC coverage for all workers', law:'EC', freq:'Continuous'},
+  {code:'pcb', grp:'Registrations & licences', item:'Pollution board consent and C&D waste plan', law:'CDW', freq:'As per consent'},
+  {code:'policy', grp:'Safety organisation', item:'Written safety & health policy displayed', law:'B38', freq:'Annual review'},
+  {code:'committee', grp:'Safety organisation', item:'Safety committee constituted and meeting held', law:'B38', freq:'Monthly'},
+  {code:'officer', grp:'Safety organisation', item:'Qualified safety officer(s) appointed per worker strength', law:'B38', freq:'Continuous'},
+  {code:'permits', grp:'Safety organisation', item:'Work-permit system (height, hot work, excavation, confined space, electrical)', law:'B40', freq:'Daily'},
+  {code:'emergency', grp:'Safety organisation', item:'Emergency response plan and mock drill', law:'NBC4', freq:'Quarterly'},
+  {code:'medical', grp:'Health & welfare', item:'Pre-employment and periodic medical examination', law:'BR_MED', freq:'Joining + periodic'},
+  {code:'firstaid', grp:'Health & welfare', item:'First-aid boxes, trained first-aiders, ambulance arrangement', law:'B36', freq:'Monthly check'},
+  {code:'welfare', grp:'Health & welfare', item:'Drinking water, toilets, rest shelter, canteen, crèche', law:'B32', freq:'Weekly check'},
+  {code:'crane', grp:'Equipment & inspections', item:'Lifting appliances & tackles tested by competent person', law:'BR_LIFT', freq:'Per certificate validity'},
+  {code:'scaff', grp:'Equipment & inspections', item:'Scaffold inspection and tagging', law:'BR_SC', freq:'Weekly'},
+  {code:'elec', grp:'Equipment & inspections', item:'Electrical inspection, RCCB trip test, earth pit resistance', law:'CEA', freq:'Monthly'},
+  {code:'fire', grp:'Equipment & inspections', item:'Fire extinguishers inspected, refilled and hydro-tested', law:'IS2190', freq:'Monthly / as due'},
+  {code:'gas', grp:'Equipment & inspections', item:'Gas cylinder storage per Gas Cylinder Rules', law:'GCR', freq:'Weekly'},
+  {code:'registers', grp:'Records & returns', item:'Statutory registers (workers, wages, accidents, PPE issue) maintained', law:'B40', freq:'Continuous'},
+  {code:'abstract', grp:'Records & returns', item:'Abstracts of Act and Rules displayed in local language', law:'B40', freq:'Continuous'},
+  {code:'accident', grp:'Records & returns', item:'Accident notices sent within the prescribed time', law:'B39', freq:'Per event'},
+  {code:'return', grp:'Records & returns', item:'Annual return filed', law:'B40', freq:'Annual'},
+  {code:'audit', grp:'Records & returns', item:'Internal / third-party OSH audit', law:'IS14489', freq:'Half-yearly'},
+];
+
+// ---------- PR catalogue ----------
+const CATALOG = [
+  {item:'Safety helmet with chin strap',spec:'IS 2925, ISI marked',unit:'Nos',rate:180},
+  {item:'Safety shoes',spec:'IS 15298, steel toe',unit:'Pairs',rate:650},
+  {item:'Full-body harness, double lanyard',spec:'IS 3521, with shock absorber',unit:'Nos',rate:2800},
+  {item:'Reflective jacket',spec:'Hi-vis, 2 reflective bands',unit:'Nos',rate:120},
+  {item:'Safety goggles',spec:'IS 5983, anti-fog',unit:'Nos',rate:90},
+  {item:'Cotton/leather gloves',spec:'As per task',unit:'Pairs',rate:60},
+  {item:'Ear plugs',spec:'NRR ≥ 25 dB',unit:'Pairs',rate:15},
+  {item:'N95 respirator',spec:'BIS / NIOSH N95',unit:'Nos',rate:40},
+  {item:'Safety net',spec:'IS 11057, 5 m × 10 m',unit:'Nos',rate:4500},
+  {item:'Fire extinguisher ABC 6 kg',spec:'IS 15683, ISI marked',unit:'Nos',rate:2200},
+  {item:'CO₂ extinguisher 4.5 kg',spec:'IS 15683',unit:'Nos',rate:6500},
+  {item:'First-aid box',spec:'Contents as per BOCW Rules',unit:'Nos',rate:1500},
+  {item:'Barricade tape',spec:'Red-white, 75 mm',unit:'Rolls',rate:250},
+  {item:'Hard barricade (GI sheet)',spec:'2 m panel with stand',unit:'Nos',rate:1800},
+  {item:'Safety signage board',spec:'IS 9457 colours, bilingual',unit:'Nos',rate:350},
+  {item:'RCCB 30 mA',spec:'IS 12640',unit:'Nos',rate:2400},
+  {item:'Rebar caps',spec:'Mushroom type',unit:'Nos',rate:6},
+  {item:'Gas detector (4-gas)',spec:'O₂, LEL, H₂S, CO',unit:'Nos',rate:38000},
+];
+
+const COST_HEADS = ['PPE','Fall protection','Signage & barricading','Fire safety','Electrical safety','Training','Medical & first aid','Welfare','Safety staff','Other'];
+const INC_TYPES = ['Near miss','First aid case','Medical treatment case','Lost time injury','Dangerous occurrence','Fatal','Property damage','Fire','Environmental'];
+const TRAIN_TYPES = ['Induction','Toolbox talk','Work at height','Scaffolding','Fire & emergency','First aid','Electrical safety','Lifting & rigging','Confined space','Excavation','Behaviour-based safety','Other'];
+const MEET_TYPES = ['Safety committee (monthly)','Weekly safety review','Contractor safety meeting','Incident review','Management review'];
+const LEVELS = ['L1','L2','L3','L4'];
+
+// ================= Core =================
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const isoD = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const today = () => isoD(new Date());
+const addDays = (s, n) => { const d = new Date(s + 'T00:00:00'); d.setDate(d.getDate() + n); return isoD(d); };
+const daysBetween = (a, b) => Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 864e5);
+const fmtD = s => s ? String(s).slice(0, 10).split('-').reverse().join('-') : '';
+const inr = n => '₹' + Math.round(Number(n) || 0).toLocaleString('en-IN');
+const num = v => Number(v) || 0;
+const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const risk = (l, s) => num(l) * num(s);
+const band = r => r >= 16 ? 'Critical' : r >= 10 ? 'High' : r >= 5 ? 'Medium' : 'Low';
+const bandLabel = r => r >= 16 ? 'Very high' : band(r);
+const sevTag = s => `<span class="sev ${esc(s)}">${esc(s)}</span>`;
+const exTag = r => r && r.example ? '<span class="ex">Example</span>' : '';
+
+const DEFAULT_SETTINGS = {
+  siteName: '', client: '', contractor: '', location: '', workers: '', manHours: '', projectValue: '', lastLTI: '',
+  esc: { L1: { role: 'Site safety officer', name: '', contact: '' }, L2: { role: 'Site in-charge / Project manager', name: '', contact: '' },
+         L3: { role: 'Project head', name: '', contact: '' }, L4: { role: 'Corporate EHS head / Management', name: '', contact: '' } },
+  budget: {}
+};
+const S = { recs: new Map(), settings: structuredClone(DEFAULT_SETTINGS), mode: 'local', ai: null, dl: null, imgOK: false,
+  aiState: 'connecting', route: 'dash', ui: {}, dirty: false };
+
+let db = null, col = null, cfg = null;
+function loadLocal() {
+  try {
+    const j = JSON.parse(localStorage.getItem('ssd.v1') || '{}');
+    (j.recs || []).forEach(r => S.recs.set(r.id, r));
+    if (j.settings) S.settings = { ...structuredClone(DEFAULT_SETTINGS), ...j.settings };
+    S.route = localStorage.getItem('ssd.route') || 'dash';
+  } catch {}
+}
+function saveLocal() {
+  if (S.mode !== 'local') return;
+  try { localStorage.setItem('ssd.v1', JSON.stringify({ recs: [...S.recs.values()], settings: S.settings })); } catch {}
+}
+const clean = o => JSON.parse(JSON.stringify(o));
+async function put(rec, { quiet } = {}) {
+  rec.id ||= uid(rec.kind);
+  rec.createdAt ||= Date.now();
+  rec.updatedAt = Date.now();
+  S.recs.set(rec.id, rec);
+  saveLocal();
+  if (!quiet) render();
+  if (col) {
+    const { id, ...body } = rec;
+    try { await col.doc(id).set(clean(body)); } catch (e) { toast('Not saved to shared storage: ' + (e.message || e.code)); }
+  }
+  return rec;
+}
+async function del(id) {
+  S.recs.delete(id); saveLocal(); render();
+  if (col) try { await col.doc(id).delete(); } catch (e) { toast('Could not delete: ' + (e.message || e.code)); }
+}
+async function putSettings(patch) {
+  S.settings = { ...S.settings, ...patch }; saveLocal(); render();
+  if (cfg) try { await cfg.set(clean(S.settings)); } catch (e) { toast('Settings not saved: ' + (e.message || e.code)); }
+}
+const recs = kind => [...S.recs.values()].filter(r => r.kind === kind)
+  .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')) || (b.createdAt || 0) - (a.createdAt || 0));
+
+// Re-render from a live update only when nobody is typing in a form.
+function refresh() {
+  const a = document.activeElement;
+  if (a && a.closest('#view') && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) { S.dirty = true; return; }
+  render();
+}
+document.addEventListener('focusout', () => setTimeout(() => { if (S.dirty) { S.dirty = false; refresh(); } }, 50));
+
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 3200); }
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); toast('Copied'); }
+  catch { S.ui.copyFallback = text; render(); toast('Select the text below and copy it'); }
+}
+async function saveFile(filename, data) {
+  if (!S.dl) { await browserSave(filename, typeof data === 'string' ? data : JSON.stringify(data)); return; }
+  try { const r = await S.dl.save({ filename, data }); if (r.status === 'saved') toast('Saved ' + filename); }
+  catch (e) { if (e.code !== 'cancelled' && e.code !== 'declined') toast('File not saved: ' + (e.message || e.code)); }
+}
+
+// ================= Markdown-lite renderer for Claude output =================
+function md(src) {
+  const lines = String(src || '').replace(/\r/g, '').split('\n');
+  let out = '', list = null, tbl = null;
+  const inl = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>').replace(/`([^`]+)`/g, '<code>$1</code>');
+  const closeList = () => { if (list) { out += `</${list}>`; list = null; } };
+  const closeTbl = () => { if (tbl) { out += '<div class="tw"><table>' + tbl.map((r, i) => '<tr>' + r.map(c => i === 0 ? `<th>${inl(c)}</th>` : `<td>${inl(c)}</td>`).join('') + '</tr>').join('') + '</table></div>'; tbl = null; } };
+  for (const raw of lines) {
+    const l = raw.trim(); let m;
+    if (/^\|.*\|$/.test(l)) { closeList(); const cells = l.slice(1, -1).split('|').map(c => c.trim()); if (cells.every(c => /^:?-{2,}:?$/.test(c))) continue; (tbl ||= []).push(cells); continue; }
+    closeTbl();
+    if ((m = l.match(/^(#{1,4})\s+(.*)/))) { closeList(); const n = Math.min(m[1].length + 1, 4); out += `<h${n}>${inl(m[2])}</h${n}>`; continue; }
+    if ((m = l.match(/^[-*•]\s+(.*)/))) { if (list !== 'ul') { closeList(); out += '<ul>'; list = 'ul'; } out += `<li>${inl(m[1])}</li>`; continue; }
+    if ((m = l.match(/^\d+[.)]\s+(.*)/))) { if (list !== 'ol') { closeList(); out += '<ol>'; list = 'ol'; } out += `<li>${inl(m[1])}</li>`; continue; }
+    closeList(); if (l) out += `<p>${inl(l)}</p>`;
+  }
+  closeList(); closeTbl(); return out;
+}
+
+// ================= Claude =================
+const GROUND = `You are "Site Safety Desk", the assistant to the safety manager of a building and construction site in India.
+Write clear, practical site English unless asked for another language. Be specific and actionable.
+Ground every legal reference in Indian law: the Building and Other Construction Workers (RE&CS) Act 1996 and BOCW Central Rules 1998 (and State BOCW rules), the Occupational Safety, Health and Working Conditions Code 2020, the Factories Act 1948 where a factory is involved, the relevant IS codes (for example IS 3696, IS 4014, IS 3764, IS 2925, IS 3521, IS 4912, IS 13416, IS 3043, IS 2190, IS 3786, IS 7969, IS 13367) and the National Building Code 2016 Part 7 and Part 4, plus CEA Safety Regulations 2023 and Gas Cylinder Rules 2016 where relevant.
+Only cite section, rule or clause numbers you are confident about; otherwise name the provision by topic and add "(verify clause)". Never invent facts about the site.`;
+function siteCtx() {
+  const s = S.settings;
+  return `Site: ${s.siteName || 'not set'}; client: ${s.client || '-'}; contractor: ${s.contractor || '-'}; location: ${s.location || '-'}; workers on site: ${s.workers || '-'}; date today: ${fmtD(today())}.`;
+}
+async function ask(prompt, opts = {}) {
+  if (!S.ai) throw { code: 'unavailable' };
+  const full = GROUND + '\n' + siteCtx() + '\n\n' + prompt;
+  const o = { modelTier: opts.tier };
+  if (opts.images) o.images = opts.images;
+  if (opts.onText) o.onText = opts.onText;
+  if (opts.json) return S.ai.json(full, o);
+  return (await S.ai(full, o)).text;
+}
+function aiErr(e) {
+  return ({ unavailable: 'Claude is not available in this view. Open the page on claude.ai while signed in to use AI drafting.',
+    not_granted: 'Claude was not allowed on this page. Allow it from the page’s permissions menu to use AI drafting.',
+    rate_limited: 'Too many requests just now. Wait a minute, then try again.',
+    gem_limit: 'All free Gemini models are over their limit for this key. Wait a few minutes (the daily limit resets around midday IST). ' + (e?.message || ''),
+    gemini: (e?.message || 'Gemini error') + '. Check your Gemini key in Site settings.',
+    invalid_json: 'Claude’s answer could not be read as data. Try again.',
+    images_unavailable: 'Photos cannot be sent to Claude in this view.',
+    image_rejected: 'That photo could not be read. Use a JPG or PNG under 20 MB.',
+    cancelled: 'Stopped.' })[e?.code] || ('Claude could not answer: ' + (e?.message || 'unknown error'));
+}
+// Runs a streaming text request into S.ui[key] and the element #out_<key>
+async function aiText(key, prompt, btn) {
+  const st = S.ui[key] = { busy: true, text: '', err: '' };
+  if (btn) btn.disabled = true;
+  const el = () => $('#out_' + key);
+  if (el()) el().innerHTML = '<p class="think">Thinking…</p>';
+  try {
+    st.text = await ask(prompt, { onText: ({ text }) => { st.text = text; if (el()) el().innerHTML = md(text); } });
+  } catch (e) { st.err = aiErr(e); st.text = e?.text || st.text; }
+  st.busy = false; render();
+  return st.text;
+}
+const aiBox = key => {
+  const st = S.ui[key];
+  if (!st) return `<div class="out" id="out_${key}"></div>`;
+  return `${st.err ? `<p class="small" style="color:var(--crit)">${esc(st.err)}</p>` : ''}<div class="out" id="out_${key}">${st.busy ? '<p class="think">Thinking…</p>' : md(st.text)}</div>
+  ${st.text && !st.busy ? `<div class="row" style="margin-top:8px"><button class="btn" data-act="copyAi" data-k="${key}">Copy</button><button class="btn" data-act="saveAi" data-k="${key}">Save as file</button></div>` : ''}`;
+};
+const aiOff = () => S.ai ? '' : `<p class="small muted">${S.aiState === 'connecting' ? 'Connecting to Claude…' : 'AI is off: add your free Gemini key in <a href="#" data-act="go" data-r="settings">Site settings</a> (or open the page on claude.ai). Built-in templates still work.'}</p>`;
+
+// ================= Form helpers =================
+function fields(form, spec, v = {}) {
+  return spec.map(f => {
+    const val = v[f.k] ?? (typeof f.d === 'function' ? f.d() : f.d) ?? '';
+    const id = form + '_' + f.k;
+    let ctl;
+    if (f.t === 'select') ctl = `<select id="${id}" name="${f.k}">${f.o.map(o => `<option${String(o) === String(val) ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select>`;
+    else if (f.t === 'area') ctl = `<textarea id="${id}" name="${f.k}" class="${f.big ? 'big' : ''}" placeholder="${esc(f.ph || '')}">${esc(val)}</textarea>`;
+    else ctl = `<input id="${id}" name="${f.k}" type="${f.t || 'text'}" value="${esc(val)}"${f.req ? ' required' : ''}${f.t === 'number' ? ' step="any" min="0"' : ''} placeholder="${esc(f.ph || '')}"${f.list ? ` list="${f.list}"` : ''}>`;
+    return `<div class="fld${f.full || f.t === 'area' ? ' full' : ''}"><label for="${id}">${esc(f.l)}</label>${ctl}</div>`;
+  }).join('');
+}
+const formData = f => Object.fromEntries(new FormData(f));
+
+// ================= Record specs =================
+const SPEC = {
+  obs: { label: 'observation', fields: [
+    { k: 'date', l: 'Date', t: 'date', d: today, req: 1 }, { k: 'time', l: 'Time', t: 'time' },
+    { k: 'location', l: 'Location / work front', ph: 'Tower B, 7th slab' }, { k: 'cat', l: 'Category', t: 'select', o: CATS },
+    { k: 'sev', l: 'Severity', t: 'select', o: SEVS, d: 'Medium' }, { k: 'status', l: 'Status', t: 'select', o: ['Open', 'In progress', 'Closed'] },
+    { k: 'obs', l: 'Observation', t: 'area', req: 1 }, { k: 'action', l: 'Corrective action', t: 'area' },
+    { k: 'reportedBy', l: 'Reported by' }, { k: 'responsible', l: 'Responsible (contractor / person)' },
+    { k: 'target', l: 'Target date', t: 'date', d: () => addDays(today(), 2) }, { k: 'source', l: 'Source', t: 'select', o: ['Site walk', 'WhatsApp', 'Photo', 'Audit', 'Other'] } ] },
+  incident: { label: 'incident', fields: [
+    { k: 'date', l: 'Date', t: 'date', d: today }, { k: 'time', l: 'Time', t: 'time' }, { k: 'type', l: 'Type', t: 'select', o: INC_TYPES },
+    { k: 'location', l: 'Location' }, { k: 'person', l: 'Injured person / involved' }, { k: 'trade', l: 'Trade & contractor' },
+    { k: 'injury', l: 'Nature of injury & body part' }, { k: 'daysLost', l: 'Man-days lost', t: 'number' },
+    { k: 'desc', l: 'What happened', t: 'area' }, { k: 'immediate', l: 'Immediate action taken', t: 'area' },
+    { k: 'rootCause', l: 'Root cause', t: 'area' }, { k: 'capa', l: 'Corrective & preventive actions', t: 'area' },
+    { k: 'notified', l: 'Notice to authority', t: 'select', o: ['Not required', 'Pending', 'Sent'] }, { k: 'status', l: 'Status', t: 'select', o: ['Open', 'Under investigation', 'Closed'] } ] },
+  training: { label: 'training session', fields: [
+    { k: 'date', l: 'Date', t: 'date', d: today }, { k: 'type', l: 'Type', t: 'select', o: TRAIN_TYPES },
+    { k: 'topic', l: 'Topic' }, { k: 'trainer', l: 'Trainer' }, { k: 'participants', l: 'Participants', t: 'number' },
+    { k: 'hours', l: 'Duration (hours)', t: 'number', d: 0.5 }, { k: 'lang', l: 'Language', t: 'select', o: ['Hindi', 'English', 'Marathi', 'Bengali', 'Odia', 'Telugu', 'Tamil'] },
+    { k: 'status', l: 'Status', t: 'select', o: ['Done', 'Planned'] }, { k: 'notes', l: 'Points covered / remarks', t: 'area' } ] },
+  meeting: { label: 'meeting', fields: [
+    { k: 'date', l: 'Date', t: 'date', d: today }, { k: 'type', l: 'Meeting', t: 'select', o: MEET_TYPES },
+    { k: 'chair', l: 'Chaired by' }, { k: 'attendees', l: 'Attendees', full: 1, ph: 'Names and roles, comma separated' },
+    { k: 'agenda', l: 'Agenda', t: 'area' }, { k: 'notes', l: 'Rough notes from the meeting', t: 'area', big: 1 },
+    { k: 'mom', l: 'Minutes of meeting (MoM)', t: 'area', big: 1 } ] },
+  cost: { label: 'expense', fields: [
+    { k: 'date', l: 'Date', t: 'date', d: today }, { k: 'head', l: 'Budget head', t: 'select', o: COST_HEADS },
+    { k: 'desc', l: 'Description' }, { k: 'amount', l: 'Amount (₹)', t: 'number', req: 1 }, { k: 'vendor', l: 'Vendor' }, { k: 'ref', l: 'Bill / PO ref' } ] },
+  pr: { label: 'purchase request', fields: [
+    { k: 'date', l: 'Date', t: 'date', d: today }, { k: 'item', l: 'Item', list: 'catList', req: 1 }, { k: 'spec', l: 'Specification' },
+    { k: 'qty', l: 'Quantity', t: 'number', req: 1 }, { k: 'unit', l: 'Unit', d: 'Nos' }, { k: 'rate', l: 'Est. rate (₹)', t: 'number' },
+    { k: 'head', l: 'Budget head', t: 'select', o: COST_HEADS }, { k: 'urgency', l: 'Urgency', t: 'select', o: ['Normal', 'Urgent', 'Emergency'] },
+    { k: 'needBy', l: 'Required by', t: 'date', d: () => addDays(today(), 7) }, { k: 'status', l: 'Status', t: 'select', o: ['Draft', 'Submitted', 'Approved', 'Ordered', 'Received', 'Rejected'] },
+    { k: 'why', l: 'Justification', t: 'area', ph: 'Why it is needed, linked observation or statutory requirement' } ] },
+};
+
+// ================= Navigation =================
+const NAV = [
+  ['Overview', [['dash', 'Dashboard'], ['assistant', 'Ask the assistant']]],
+  ['Daily work', [['obs', 'Observations'], ['whatsapp', 'WhatsApp import'], ['photo', 'Photo check'], ['reports', 'Reports']]],
+  ['Registers', [['trackers', 'Trackers']]],
+  ['Planning', [['hira', 'HIRA'], ['sop', 'SOPs'], ['training', 'Training'], ['meetings', 'Meetings & MoM']]],
+  ['Events', [['incidents', 'Incidents'], ['escalation', 'Escalation']]],
+  ['Commercial', [['cost', 'Safety cost'], ['pr', 'Purchase requests']]],
+  ['Compliance', [['isodocs', 'ISO 45001 & BOCW'], ['compliance', 'Statutory tracker'], ['library', 'Law & IS library'], ['settings', 'Site settings']]],
+];
+const TITLES = Object.fromEntries(NAV.flatMap(g => g[1]));
+const NAV_ICON = { dash: '🏠', assistant: '💬', obs: '📋', whatsapp: '📲', photo: '📸', reports: '📈', trackers: '📊', hira: '⚠️', sop: '📘', training: '🎓',
+  meetings: '🗓️', incidents: '🚑', escalation: '📣', cost: '💰', pr: '🛒', isodocs: '🏅', compliance: '✅', library: '⚖️', settings: '⚙️' };
+function navCounts() {
+  const open = recs('obs').filter(r => r.status !== 'Closed').length;
+  const esc_ = escalations().length;
+  const inc = recs('incident').filter(r => r.status !== 'Closed').length;
+  return { obs: open, escalation: esc_, incidents: inc, trackers: trkOverdue() };
+}
+function renderNav() {
+  const c = navCounts();
+  $('#nav').innerHTML = `<div class="brand"><div class="stripe"></div><b>⛑️ Safety Desk</b><small>Site safety manager’s assistant</small></div>` +
+    NAV.map(([g, items]) => `<div class="navgrp"><h6>${g}</h6>${items.map(([k, t]) => `<button data-act="go" data-r="${k}"${S.route === k ? ' aria-current="page"' : ''}><span><i class="ni">${NAV_ICON[k] || '•'}</i>${t}</span>${c[k] ? `<span class="cnt">${c[k]}</span>` : ''}</button>`).join('')}</div>`).join('');
+}
+function render() {
+  renderNav();
+  $('#ttl').textContent = (NAV_ICON[S.route] || '🏠') + ' ' + (TITLES[S.route] || 'Dashboard');
+  const s = S.settings;
+  $('#siteLine').textContent = [s.siteName, s.location].filter(Boolean).join(' · ');
+  const sc = $('#storeChip');
+  sc.className = 'chip ' + (S.mode === 'db' ? 'on' : 'warn');
+  sc.lastElementChild.textContent = S.mode === 'db' ? 'Saved to shared site register' : 'Saved in this browser only';
+  const ac = $('#aiChip');
+  ac.className = 'chip ' + (S.ai ? 'on' : S.aiState === 'connecting' ? '' : 'warn');
+  ac.lastElementChild.textContent = S.ai ? (S.aiName || 'Claude') + ' ready' : S.aiState === 'connecting' ? 'AI: connecting' : 'AI off: templates only';
+  const fn = VIEWS[S.route] || VIEWS.dash;
+  $('#view').innerHTML = fn() + (S.ui.copyFallback ? `<div class="panel" style="margin-top:18px"><h3>Copy this text</h3><textarea class="big" id="copyFallback" readonly>${esc(S.ui.copyFallback)}</textarea><div class="row" style="margin-top:8px"><button class="btn" data-act="closeCopy">Close</button></div></div>` : '');
+  AFTER[S.route]?.();
+}
+
+// ================= Derived data =================
+function escalations() {
+  const out = [], t = today();
+  for (const r of recs('obs')) {
+    if (r.status === 'Closed') continue;
+    const age = daysBetween(r.date || t, t);
+    if (r.sev === 'Critical') out.push({ lvl: 'L3', id: r.id, what: 'Critical observation open', detail: r.obs, loc: r.location, since: r.date, ref: r });
+    else if (r.sev === 'High' && age >= 2) out.push({ lvl: 'L2', id: r.id, what: `High-risk observation open ${age} days`, detail: r.obs, loc: r.location, since: r.date, ref: r });
+    else if (r.target && r.target < t) out.push({ lvl: 'L2', id: r.id, what: `Corrective action overdue by ${daysBetween(r.target, t)} days`, detail: r.obs, loc: r.location, since: r.target, ref: r });
+  }
+  for (const r of recs('incident')) {
+    if (r.status === 'Closed') continue;
+    if (['Fatal', 'Lost time injury', 'Dangerous occurrence'].includes(r.type)) out.push({ lvl: 'L4', id: r.id, what: r.type + ' reported', detail: r.desc, loc: r.location, since: r.date, ref: r });
+    else if (r.type === 'Medical treatment case' || r.type === 'Fire') out.push({ lvl: 'L3', id: r.id, what: r.type + ' under investigation', detail: r.desc, loc: r.location, since: r.date, ref: r });
+    if (r.notified === 'Pending') out.push({ lvl: 'L3', id: r.id + ':n', what: 'Statutory accident notice pending', detail: r.desc, loc: r.location, since: r.date, ref: r });
+  }
+  for (const c of COMPLIANCE) {
+    const r = S.recs.get('cmp_' + c.code);
+    if (r?.status === 'Non-compliant') out.push({ lvl: 'L3', id: r.id, what: 'Statutory non-compliance', detail: c.item, loc: '', since: r.due || '', ref: r });
+    else if (r?.due && r.due < t && r.status !== 'Compliant' && r.status !== 'Not applicable') out.push({ lvl: 'L2', id: r.id, what: 'Compliance due date passed', detail: c.item, loc: '', since: r.due, ref: r });
+  }
+  for (const r of recs('pr')) {
+    if (r.status === 'Submitted' && r.urgency !== 'Normal' && daysBetween(r.date, t) >= 2) out.push({ lvl: 'L2', id: r.id, what: `${r.urgency} PR awaiting approval ${daysBetween(r.date, t)} days`, detail: `${r.item} × ${r.qty} ${r.unit || ''}`, loc: '', since: r.date, ref: r });
+  }
+  return out.sort((a, b) => b.lvl.localeCompare(a.lvl));
+}
+function stats(from, to) {
+  const inR = r => (!from || r.date >= from) && (!to || r.date <= to);
+  const obs = recs('obs').filter(inR), inc = recs('incident').filter(inR), tr = recs('training').filter(inR);
+  const meet = recs('meeting').filter(inR), cost = recs('cost').filter(inR), pr = recs('pr').filter(inR);
+  const byCat = {}; obs.forEach(o => byCat[o.cat || 'General'] = (byCat[o.cat || 'General'] || 0) + 1);
+  const bySev = {}; SEVS.forEach(s => bySev[s] = obs.filter(o => o.sev === s).length);
+  const trainHrs = tr.filter(t => t.status !== 'Planned').reduce((a, t) => a + num(t.participants) * num(t.hours), 0);
+  return { obs, inc, tr, meet, cost, pr, byCat, bySev, trainHrs, closed: obs.filter(o => o.status === 'Closed').length,
+    spend: cost.reduce((a, c) => a + num(c.amount), 0) };
+}
+function complianceScore() {
+  let ok = 0, n = 0;
+  for (const c of COMPLIANCE) { const st = S.recs.get('cmp_' + c.code)?.status; if (st === 'Not applicable') continue; n++; if (st === 'Compliant') ok++; else if (st === 'Partial') ok += .5; }
+  return n ? Math.round(ok / n * 100) : 0;
+}
+function safetyNumbers() {
+  const s = S.settings, mh = num(s.manHours);
+  const ltis = recs('incident').filter(r => ['Lost time injury', 'Fatal'].includes(r.type));
+  const lastLTI = [s.lastLTI, ...ltis.map(r => r.date)].filter(Boolean).sort().pop();
+  const daysLost = recs('incident').reduce((a, r) => a + num(r.daysLost), 0);
+  return { mh, lti: ltis.length, ltifr: mh ? (ltis.length * 1e6 / mh) : null, sr: mh ? (daysLost * 1e6 / mh) : null,
+    sinceLTI: lastLTI ? daysBetween(lastLTI, today()) : null, lastLTI };
+}
+
+// ================= Views =================
+const VIEWS = {}, AFTER = {}, ACT = {}, FORM = {}, CHG = {};
+
+VIEWS.dash = () => {
+  const n = safetyNumbers(), t = today(), st = stats(addDays(t, -29), t), esc_ = escalations();
+  const open = recs('obs').filter(r => r.status !== 'Closed');
+  const hiOpen = open.filter(r => r.sev === 'High' || r.sev === 'Critical').length;
+  const budget = Object.values(S.settings.budget || {}).reduce((a, b) => a + num(b), 0);
+  const spent = recs('cost').reduce((a, c) => a + num(c.amount), 0);
+  const maxCat = Math.max(1, ...Object.values(st.byCat));
+  const nothing = !S.recs.size;
+  const h = new Date().getHours(), greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  const alerts = esc_.length + trkOverdue();
+  return `<div class="stack">
+  <div class="hero"><div class="b"><h2>${greet} 👷</h2><p>${esc([S.settings.siteName, S.settings.location].filter(Boolean).join(' · ') || 'Your construction safety assistant')}</p>
+    <p class="small">📅 ${fmtD(today())}${n.mh ? ' · 🛡️ ' + n.mh.toLocaleString('en-IN') + ' safe man-hours' : ''}</p>
+    <span class="pill ${alerts ? 'bad' : 'good'}">${alerts ? `⚠️ ${alerts} item${alerts === 1 ? ' needs' : 's need'} attention` : '✅ Site status: no open alerts'}</span></div><div class="big">🦺</div></div>
+  ${tipCard()}
+  ${nothing ? `<div class="panel flat"><h2>Set up your site</h2><p>Start with <a href="#" data-act="go" data-r="settings">site settings</a> (site name, workers, man-hours and the escalation matrix). Then log observations as you walk the site, paste the safety WhatsApp group into <a href="#" data-act="go" data-r="whatsapp">WhatsApp import</a>, or check a violation photo in <a href="#" data-act="go" data-r="photo">Photo check</a>. Everything you add here feeds the daily, weekly and monthly reports.</p></div>` : ''}
+  <div class="kpis">
+    <div class="kpi${trkOverdue() ? ' alert' : ''}"><div class="k">📊 Tracker items overdue</div><div class="v">${trkOverdue()}</div><div class="s"><a href="#" data-act="go" data-r="trackers">Open trackers</a></div></div>
+    <div class="kpi"><div class="k">🏆 Days without LTI</div><div class="v">${n.sinceLTI ?? '–'}</div><div class="s">${n.lastLTI ? 'Last LTI ' + fmtD(n.lastLTI) : 'Set the last LTI date in settings'}</div></div>
+    <div class="kpi"><div class="k">🛡️ Safe man-hours</div><div class="v">${n.mh ? n.mh.toLocaleString('en-IN') : '–'}</div><div class="s">LTIFR ${n.ltifr != null ? n.ltifr.toFixed(2) : '–'} (IS 3786, per 10⁶ h)</div></div>
+    <div class="kpi${hiOpen ? ' alert' : ''}"><div class="k">🔥 Open high-risk items</div><div class="v">${hiOpen}</div><div class="s">${open.length} observations open in total</div></div>
+    <div class="kpi${esc_.length ? ' alert' : ''}"><div class="k">📣 Need escalation</div><div class="v">${esc_.length}</div><div class="s"><a href="#" data-act="go" data-r="escalation">Review and send</a></div></div>
+    <div class="kpi"><div class="k">🎓 Training (30 days)</div><div class="v">${Math.round(st.trainHrs)}</div><div class="s">man-hours across ${st.tr.length} sessions</div></div>
+    <div class="kpi"><div class="k">✅ Statutory compliance</div><div class="v">${complianceScore()}%</div><div class="s"><a href="#" data-act="go" data-r="compliance">Open tracker</a></div></div>
+    <div class="kpi"><div class="k">💰 Safety spend</div><div class="v" style="font-size:20px">${inr(spent)}</div><div class="s">${budget ? Math.round(spent / budget * 100) + '% of ' + inr(budget) + ' budget' : 'Set budget in Safety cost'}</div></div>
+  </div>
+  <div class="grid2">
+    <div class="panel"><h2>⚠️ Needs attention</h2>${esc_.length ? `<div class="list">${esc_.slice(0, 7).map(e => `<div class="it"><span class="sev ${e.lvl === 'L4' || e.lvl === 'L3' ? 'Critical' : 'High'}">${e.lvl}</span><div class="b"><b>${esc(e.what)}</b>${exTag(e.ref)}<div class="small muted">${esc((e.detail || '').slice(0, 120))}${e.loc ? ' · ' + esc(e.loc) : ''}</div></div></div>`).join('')}</div>` : '<p class="muted">Nothing needs escalating right now.</p>'}</div>
+    <div class="panel"><h2>📊 Observations by category, last 30 days</h2>${Object.keys(st.byCat).length ? `<div class="hbars">${Object.entries(st.byCat).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="r"><span>${esc(k)}</span><span class="t"><i style="width:${v / maxCat * 100}%"></i></span><span class="mono">${v}</span></div>`).join('')}</div><p class="small muted" style="margin-top:10px">${SEVS.map(s => `${s}: ${st.bySev[s]}`).join(' · ')} · Closed ${st.closed} of ${st.obs.length}</p>` : '<p class="muted">No observations in the last 30 days.</p>'}</div>
+  </div>
+  <div class="panel"><div class="row" style="justify-content:space-between"><h2 style="margin:0">📋 Latest observations</h2><div class="row"><button class="btn pri" data-act="newRec" data-kind="obs">Log observation</button><button class="btn" data-act="go" data-r="reports">Make today’s report</button></div></div>
+  <div style="margin-top:12px">${obsTable(recs('obs').slice(0, 6), true)}</div></div>
+  </div>`;
+};
+
+// ---------- Generic CRUD ----------
+function crud(kind, opts = {}) {
+  const sp = SPEC[kind], ed = S.ui.edit?.kind === kind ? S.ui.edit : null;
+  const v = ed?.id ? S.recs.get(ed.id) || {} : (ed?.preset || {});
+  const form = ed ? `<div class="panel"><h2>${ed.id ? 'Edit' : 'New'} ${sp.label}</h2>
+    <form class="f" data-form="rec" data-kind="${kind}">${fields(kind, sp.fields, v)}
+    ${opts.formExtra ? opts.formExtra(v) : ''}
+    <div class="actions"><button class="btn pri" type="submit">Save</button><button class="btn" type="button" data-act="cancelEdit">Cancel</button>${ed.id ? `<button class="btn danger" type="button" data-act="delRec" data-id="${ed.id}">Delete</button>` : ''}</div></form></div>` : '';
+  return form;
+}
+FORM.rec = (f) => {
+  const kind = f.dataset.kind, d = formData(f), ed = S.ui.edit || {};
+  const old = ed.id ? S.recs.get(ed.id) : null;
+  const rec = { ...(old || {}), ...(ed.preset || {}), ...d, kind };
+  if (kind === 'pr' && !rec.prNo) rec.prNo = nextPrNo();
+  S.ui.edit = null;
+  put(rec);
+  toast('Saved');
+};
+ACT.newRec = el => { S.ui.edit = { kind: el.dataset.kind }; if (S.route !== routeOf(el.dataset.kind)) S.route = routeOf(el.dataset.kind); render(); scrollTop(); };
+ACT.editRec = el => { const r = S.recs.get(el.dataset.id); S.ui.edit = { kind: r.kind, id: r.id }; render(); scrollTop(); };
+ACT.cancelEdit = () => { S.ui.edit = null; render(); };
+ACT.delRec = el => { if (S.ui.confirmDel !== el.dataset.id) { S.ui.confirmDel = el.dataset.id; el.textContent = 'Tap again to delete'; return; } S.ui.edit = null; del(el.dataset.id); toast('Deleted'); };
+const routeOf = k => k.startsWith('trk_') ? 'trackers' : ({ obs: 'obs', incident: 'incidents', training: 'training', meeting: 'meetings', cost: 'cost', pr: 'pr' })[k] || k;
+const scrollTop = () => { try { $('#view').scrollIntoView({ block: 'start' }); } catch {} };
+
+// ---------- Observations ----------
+function obsTable(list, compact) {
+  if (!list.length) return '<div class="empty">No observations yet. Use “Log observation”, import from WhatsApp, or check a photo.</div>';
+  return `<div class="tw"><table><tr><th>Date</th><th>Location</th><th>Observation</th><th>Category</th><th>Severity</th><th>Responsible</th><th>Status</th>${compact ? '' : '<th></th>'}</tr>
+  ${list.map(r => `<tr><td class="mono">${fmtD(r.date)}</td><td>${esc(r.location)}</td><td style="min-width:220px">${r.thumb ? `<img class="thumb" src="${esc(r.thumb)}" alt="" style="float:right;margin-left:8px">` : ''}${esc(r.obs)}${exTag(r)}${r.action ? `<div class="small muted">Action: ${esc(r.action)}</div>` : ''}</td>
+  <td>${esc(r.cat)}</td><td>${sevTag(r.sev)}</td><td>${esc(r.responsible)}${r.target ? `<div class="small muted">by ${fmtD(r.target)}</div>` : ''}</td>
+  <td><select data-chg="status" data-id="${r.id}" aria-label="Status">${['Open', 'In progress', 'Closed'].map(s => `<option${r.status === s ? ' selected' : ''}>${s}</option>`).join('')}</select></td>
+  ${compact ? '' : `<td><button class="btn ghost" data-act="editRec" data-id="${r.id}">Edit</button></td>`}</tr>`).join('')}</table></div>`;
+}
+CHG.status = el => { const r = S.recs.get(el.dataset.id); if (!r) return; r.status = el.value; if (el.value === 'Closed') r.closedOn = today(); put(r); };
+VIEWS.obs = () => {
+  const f = S.ui.obsFilter || 'Open';
+  let list = recs('obs');
+  if (f === 'Open') list = list.filter(r => r.status !== 'Closed'); else if (f !== 'All') list = list.filter(r => r.sev === f || r.cat === f);
+  return `<div class="stack">${crud('obs')}
+  <div class="row" style="justify-content:space-between"><div class="tabs" style="margin:0">${['Open', 'All', 'Critical', 'High'].map(x => `<button data-act="obsFilter" data-f="${x}" aria-pressed="${f === x}">${x}</button>`).join('')}</div>
+  <div class="row"><button class="btn pri" data-act="newRec" data-kind="obs">Log observation</button><button class="btn" data-act="csvObs">Export CSV</button></div></div>
+  ${obsTable(list)}</div>`;
+};
+ACT.obsFilter = el => { S.ui.obsFilter = el.dataset.f; render(); };
+ACT.csvObs = () => {
+  const cols = ['date', 'time', 'location', 'cat', 'sev', 'obs', 'action', 'reportedBy', 'responsible', 'target', 'status', 'source'];
+  const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const csv = cols.join(',') + '\n' + recs('obs').map(r => cols.map(c => q(r[c])).join(',')).join('\n');
+  saveFile('safety-observations-' + today() + '.csv', csv);
+};
+
+// ---------- WhatsApp import ----------
+const KW = [
+  ['Work at height', /harness|height|edge|parapet|lanyard|lifeline|fall arrest/i], ['Scaffolding', /scaffold|plank|cuplock|staging/i],
+  ['Openings & barricading', /opening|shaft|barricad|cut.?out|duct|railing/i], ['Excavation', /excavat|trench|pit|shoring|cave/i],
+  ['Electrical', /electric|wire|cable|\bdb\b|elcb|rccb|earthing|shock|panel|plug/i], ['Hot work & fire', /weld|cutting|gas|cylinder|fire|extinguish|grind/i],
+  ['Lifting & cranes', /crane|hydra|sling|lifting|hook|rigging|tower crane|chain pulley/i], ['Vehicles & plant', /dumper|jcb|vehicle|revers|transit|tipper|excavator|banksman/i],
+  ['PPE', /helmet|shoe|glove|goggle|ppe|jacket|mask|ear ?plug/i], ['Housekeeping', /housekeep|debris|material|stack|nail|rebar|scrap|waste/i],
+  ['Formwork & concreting', /shutter|formwork|prop|concret|pour/i], ['Confined space', /confined|manhole|tank|septic|sump/i],
+  ['Welfare & health', /water|toilet|first.?aid|drink|creche|labour camp|medical/i], ['Environment', /dust|noise|smoke|spill/i]];
+const ruleCat = t => (KW.find(([, re]) => re.test(t)) || ['General'])[0];
+const ruleSev = t => /no harness|without harness|shaft|live wire|collapse|cave|fatal|critical|danger|बिना हार्नेस/i.test(t) ? 'Critical' : /harness|height|edge|electric|crane|excavat|fire|gas|scaffold/i.test(t) ? 'High' : /helmet|shoe|ppe|housekeep/i.test(t) ? 'Medium' : 'Low';
+function parseWhatsAppRules(text) {
+  const re = /^\[?(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4}),?\s+(\d{1,2}:\d{2})(?::\d{2})?\s*([ap]\.?m\.?)?\]?\s*[-–]?\s*([^:]{1,40}):\s*(.*)$/i;
+  const msgs = [];
+  for (const line of text.replace(/\r/g, '').split('\n')) {
+    const m = line.match(re);
+    if (m) { let y = m[3]; if (y.length === 2) y = '20' + y; msgs.push({ date: `${y}-${pad(m[2])}-${pad(m[1])}`, time: m[4], who: m[6].trim(), text: m[7] }); }
+    else if (msgs.length && line.trim()) msgs[msgs.length - 1].text += ' ' + line.trim();
+  }
+  if (!msgs.length) text.split(/\n\s*\n|\n/).filter(x => x.trim().length > 8).forEach(x => msgs.push({ date: today(), time: '', who: '', text: x.trim() }));
+  return msgs.filter(m => m.text && !/<media omitted>|image omitted|joined using|left$|added|deleted this message|security code|end-to-end encrypted/i.test(m.text) && m.text.length > 8)
+    .map(m => ({ date: m.date, time: m.time, reportedBy: m.who, location: (m.text.match(/(tower|block|wing|floor|slab|level|basement|podium|gate|core|grid)\s*[\w-]*(\s*(floor|slab|level))?/i) || [''])[0],
+      obs: m.text, cat: ruleCat(m.text), sev: ruleSev(m.text), action: '', responsible: '', pick: true }));
+}
+VIEWS.whatsapp = () => {
+  const w = S.ui.wa || (S.ui.wa = { text: '', items: [] });
+  return `<div class="stack">
+  <div class="panel"><h2>Paste the safety group chat</h2>
+  <p class="muted small">In WhatsApp open the safety observation group → ⋮ → More → Export chat → Without media, then paste the text here or choose the .txt file. You can also paste a few messages directly.</p>
+  <textarea class="big" id="waText" placeholder="12/10/26, 9:14 am - Ramesh (Supervisor): Tower B 7th slab - 2 workers on edge without harness&#10;12/10/26, 9:31 am - Sunil: Excavation near gate 2 not barricaded, spoil at edge">${esc(w.text)}</textarea>
+  <div class="row" style="margin-top:10px"><label class="btn" for="waFile">Choose .txt file</label><input type="file" id="waFile" accept=".txt,text/plain" hidden>
+  <button class="btn pri ai" data-act="waAI" ${S.ai ? '' : 'disabled'}>Extract observations with Claude</button>
+  <button class="btn" data-act="waRules">Extract without AI</button></div>${aiOff()}
+  ${w.err ? `<p class="small" style="color:var(--crit)">${esc(w.err)}</p>` : ''}${w.busy ? '<p class="think">Claude is reading the chat…</p>' : ''}</div>
+  ${w.items.length ? `<div class="panel"><div class="row" style="justify-content:space-between"><h2 style="margin:0">${w.items.length} observations found</h2>
+   <div class="row"><button class="btn pri" data-act="waAdd">Add selected to register</button><button class="btn ai" data-act="waSummary" ${S.ai ? '' : 'disabled'}>Write summary report</button><button class="btn" data-act="waSummaryRules">Summary without AI</button></div></div>
+   <div class="tw" style="margin-top:12px"><table><tr><th></th><th>Date</th><th>Reported by</th><th>Location</th><th>Observation</th><th>Category</th><th>Severity</th><th>Action</th></tr>
+   ${w.items.map((r, i) => `<tr><td><input type="checkbox" data-chg="waPick" data-i="${i}" ${r.pick ? 'checked' : ''} aria-label="Include"></td><td class="mono">${fmtD(r.date)} ${esc(r.time || '')}</td><td>${esc(r.reportedBy)}</td><td>${esc(r.location)}</td><td style="min-width:220px">${esc(r.obs)}</td>
+   <td><select data-chg="waCat" data-i="${i}">${CATS.map(c => `<option${c === r.cat ? ' selected' : ''}>${c}</option>`).join('')}</select></td>
+   <td><select data-chg="waSev" data-i="${i}">${SEVS.map(c => `<option${c === r.sev ? ' selected' : ''}>${c}</option>`).join('')}</select></td><td class="small">${esc(r.action)}</td></tr>`).join('')}</table></div></div>` : ''}
+  ${S.ui.waSum ? `<div class="panel"><h2>Summary</h2>${aiBox('waSum')}</div>` : ''}
+  </div>`;
+};
+AFTER.whatsapp = () => {
+  const ta = $('#waText'); ta.oninput = () => S.ui.wa.text = ta.value;
+  $('#waFile').onchange = async e => { const f = e.target.files[0]; if (!f) return; S.ui.wa.text = await f.text(); render(); };
+};
+ACT.waRules = () => { const w = S.ui.wa; w.items = parseWhatsAppRules(w.text); w.err = w.items.length ? '' : 'No messages found. Paste the exported chat text first.'; render(); };
+ACT.waAI = async () => {
+  const w = S.ui.wa; if (!w.text.trim()) { w.err = 'Paste the chat first.'; render(); return; }
+  w.busy = true; w.err = ''; render();
+  try {
+    const arr = await ask(`Below is an exported WhatsApp group chat where supervisors post safety observations (messages may be in English, Hindi, Marathi or Hinglish).
+Extract every genuine safety observation, unsafe act, unsafe condition, near miss or compliance point. Ignore greetings, "ok", media placeholders and closure confirmations, but if a later message says an item was rectified, set status "Closed".
+Reply with only a JSON array of objects: {"date":"YYYY-MM-DD","time":"HH:MM","reportedBy":"","location":"","obs":"clear English description","cat":one of ${JSON.stringify(CATS)},"sev":one of ["Low","Medium","High","Critical"],"action":"recommended corrective action in one sentence","responsible":"contractor or person if mentioned","status":"Open" or "Closed"}.
+Chat:
+${w.text.slice(0, 60000)}`, { json: true });
+    w.items = (Array.isArray(arr) ? arr : []).map(x => ({ ...x, cat: CATS.includes(x.cat) ? x.cat : ruleCat(x.obs || ''), sev: SEVS.includes(x.sev) ? x.sev : 'Medium', date: /^\d{4}-\d{2}-\d{2}$/.test(x.date) ? x.date : today(), pick: true }));
+    if (!w.items.length) w.err = 'Claude found no safety observations in that text.';
+  } catch (e) { w.err = aiErr(e); }
+  w.busy = false; render();
+};
+CHG.waPick = el => { S.ui.wa.items[el.dataset.i].pick = el.checked; };
+CHG.waCat = el => { S.ui.wa.items[el.dataset.i].cat = el.value; };
+CHG.waSev = el => { S.ui.wa.items[el.dataset.i].sev = el.value; };
+ACT.waAdd = async () => {
+  const sel = S.ui.wa.items.filter(x => x.pick);
+  for (const x of sel) { const { pick, ...rest } = x; await put({ kind: 'obs', status: 'Open', ...rest, source: 'WhatsApp', target: addDays(x.date || today(), x.sev === 'Critical' ? 0 : x.sev === 'High' ? 1 : 3) }, { quiet: true }); }
+  S.ui.wa.items = S.ui.wa.items.filter(x => !x.pick); render(); toast(sel.length + ' observations added to the register');
+};
+function waSummaryRules(items) {
+  const by = {}; items.forEach(i => (by[i.cat] ||= []).push(i));
+  const crit = items.filter(i => i.sev === 'Critical' || i.sev === 'High');
+  return `# Safety observation summary – ${fmtD(today())}\n\n**${items.length} observations** from the WhatsApp group. High/critical: ${crit.length}.\n\n## By category\n` +
+    Object.entries(by).map(([k, v]) => `- **${k}**: ${v.length}`).join('\n') + `\n\n## High-risk items needing action today\n` +
+    (crit.length ? crit.map(i => `- ${i.location ? i.location + ': ' : ''}${i.obs} (${i.sev})`).join('\n') : '- None') +
+    `\n\n## Observation list\n| # | Location | Observation | Category | Severity |\n|---|---|---|---|---|\n` + items.map((i, n) => `| ${n + 1} | ${i.location || '-'} | ${i.obs.replace(/\|/g, '/')} | ${i.cat} | ${i.sev} |`).join('\n');
+}
+ACT.waSummaryRules = () => { S.ui.waSum = { text: waSummaryRules(S.ui.wa.items) }; render(); };
+ACT.waSummary = el => {
+  S.ui.waSum = { busy: true, text: '' }; render();
+  aiText('waSum', `Write a daily safety observation summary report from these WhatsApp observations. Sections: 1) Headline (2 lines), 2) Count by category and severity as a table, 3) Critical/high items with recommended action, responsible party and target time, 4) Repeat issues and trends, 5) Recommendations for tomorrow's toolbox talk, 6) A short WhatsApp-ready message (under 80 words) to post back to the group.\nObservations JSON:\n${JSON.stringify(S.ui.wa.items.map(({ pick, ...r }) => r)).slice(0, 50000)}`, el);
+};
+
+// ---------- Photo check ----------
+async function shrink(file, max = 480, q = .65) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = url; });
+    const k = Math.min(1, max / Math.max(img.width, img.height));
+    const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', q);
+  } finally { URL.revokeObjectURL(url); }
+}
+function vCard(v, i) {
+  const laws = (v.laws || []).map(x => typeof x === 'string' ? { ref: L(x) } : x);
+  return `<div class="vcard"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${esc(v.title)}</h3>${sevTag(v.sev)}</div>
+  ${v.evidence ? `<p class="small muted" style="margin-top:6px">Seen in photo: ${esc(v.evidence)}</p>` : ''}
+  ${v.hazard ? `<p style="margin-top:6px"><b>Hazard:</b> ${esc(v.hazard)}</p>` : ''}
+  <p style="margin:8px 0 2px"><b>Legal & standard requirements</b></p>${laws.map(l => `<div class="law">${esc(l.ref)}${l.requirement ? `<div class="muted">${esc(l.requirement)}</div>` : ''}</div>`).join('')}
+  <p style="margin:8px 0 2px"><b>How to correct it</b></p><ol>${(v.fix || []).map(f => `<li>${esc(f)}</li>`).join('')}</ol>
+  ${i != null ? `<button class="btn" data-act="photoAdd" data-i="${i}">Add to observation register</button>` : ''}</div>`;
+}
+VIEWS.photo = () => {
+  const p = S.ui.photo || (S.ui.photo = { loc: '' });
+  const res = p.result;
+  return `<div class="stack"><div class="grid2">
+  <div class="panel"><h2>Upload a violation photo</h2>
+   <label class="drop" for="photoIn" id="drop">${p.url ? `<img src="${p.url}" alt="Uploaded site photo">` : '<b>Tap to take or choose a photo</b><div class="small muted">or drop an image here</div>'}</label>
+   <input type="file" id="photoIn" accept="image/*" capture="environment" hidden>
+   <div class="fld" style="margin-top:12px"><label for="photoLoc">Location / work front</label><input id="photoLoc" value="${esc(p.loc)}" placeholder="Tower A, 12th floor east"></div>
+   <div class="fld" style="margin-top:8px"><label for="photoNote">What should Claude look at? (optional)</label><input id="photoNote" value="${esc(p.note || '')}" placeholder="e.g. scaffold near lift core"></div>
+   <div class="row" style="margin-top:12px"><button class="btn pri ai" data-act="photoAI" ${S.ai && S.imgOK && p.file ? '' : 'disabled'}>Analyse photo</button>${p.busy ? '<span class="think">Claude is checking the photo…</span>' : ''}</div>
+   ${S.ai && !S.imgOK ? '<p class="small muted">Photos cannot be sent to Claude in this view. Use the checklist on the right.</p>' : aiOff()}
+   ${p.err ? `<p class="small" style="color:var(--crit)">${esc(p.err)}</p>` : ''}
+  </div>
+  <div class="panel"><h2>Or pick what you see</h2><p class="small muted">Tick the violations in the photo to see the legal requirement and correction, then add them to the register.</p>
+   <div class="list">${VIOL.map(v => `<label class="it" style="cursor:pointer"><input type="checkbox" data-chg="vPick" data-id="${v.id}" ${p.picked?.includes(v.id) ? 'checked' : ''} style="width:auto"><span class="b">${esc(v.title)}</span>${sevTag(v.sev)}</label>`).join('')}</div></div>
+  </div>
+  ${res ? `<div class="panel"><h2>Findings</h2>${res.summary ? `<p>${esc(res.summary)}</p>` : ''}${res.immediate ? `<p><b>Immediate action:</b> ${esc(res.immediate)}</p>` : ''}
+   ${(res.violations || []).length ? res.violations.map((v, i) => vCard(v, i)).join('') : '<p class="muted">No violations identified in this photo.</p>'}
+   <p class="note">AI findings from one photo. Confirm on site before issuing a notice; verify clause numbers marked “verify”.</p></div>` : ''}
+  ${p.picked?.length ? `<div class="panel"><h2>Selected violations</h2>${p.picked.map(id => { const v = VIOL.find(x => x.id === id); return vCard(v, 'lib:' + id); }).join('')}</div>` : ''}
+  </div>`;
+};
+AFTER.photo = () => {
+  const inp = $('#photoIn'), drop = $('#drop');
+  const take = async f => { if (!f || !f.type.startsWith('image/')) return; const p = S.ui.photo; p.file = f; p.result = null; p.err = ''; p.url = await shrink(f, 900, .8); p.thumb = await shrink(f, 360, .6); render(); };
+  inp.onchange = e => take(e.target.files[0]);
+  drop.ondragover = e => e.preventDefault();
+  drop.ondrop = e => { e.preventDefault(); take(e.dataTransfer.files[0]); };
+  $('#photoLoc').oninput = e => S.ui.photo.loc = e.target.value;
+  $('#photoNote').oninput = e => S.ui.photo.note = e.target.value;
+};
+CHG.vPick = el => { const p = S.ui.photo; p.picked = (p.picked || []).filter(x => x !== el.dataset.id); if (el.checked) p.picked.push(el.dataset.id); render(); };
+ACT.photoAI = async () => {
+  const p = S.ui.photo; p.busy = true; p.err = ''; render();
+  try {
+    p.result = await ask(`The attached photo is from a building/construction site in India${p.loc ? ' at ' + p.loc : ''}. ${p.note ? 'Focus: ' + p.note + '.' : ''}
+Act as a senior safety auditor. Identify every visible unsafe act or unsafe condition (PPE, work at height, edges and openings, scaffolding, ladders, excavation, electrical, hot work, gas cylinders, lifting, vehicles, housekeeping, formwork, welfare, underage workers). Do not guess about things you cannot see.
+Reply with only JSON: {"summary":"one or two sentences","immediate":"what to do right now","violations":[{"title":"short name","cat":one of ${JSON.stringify(CATS)},"sev":"Low|Medium|High|Critical","evidence":"what in the photo shows it","hazard":"what could happen","laws":[{"ref":"Act/Rule/IS code/NBC reference","requirement":"what it requires, one sentence"}],"fix":["corrective step", "..."]}]}`, { json: true, images: p.file });
+    if (!p.result || !Array.isArray(p.result.violations)) p.result = { summary: String(p.result?.summary || ''), violations: [] };
+  } catch (e) { p.err = aiErr(e); }
+  p.busy = false; render();
+};
+ACT.photoAdd = el => {
+  const p = S.ui.photo, i = el.dataset.i;
+  const v = i.startsWith('lib:') ? VIOL.find(x => x.id === i.slice(4)) : p.result.violations[i];
+  put({ kind: 'obs', date: today(), time: new Date().toTimeString().slice(0, 5), location: p.loc, cat: CATS.includes(v.cat) ? v.cat : 'General', sev: SEVS.includes(v.sev) ? v.sev : 'High',
+    obs: v.title + (v.evidence ? ' – ' + v.evidence : ''), action: (v.fix || []).slice(0, 2).join(' '), status: 'Open', source: 'Photo',
+    laws: (v.laws || []).map(x => typeof x === 'string' ? L(x) : x.ref).join('; '), thumb: p.thumb || '', target: addDays(today(), v.sev === 'Critical' ? 0 : 1) });
+  el.disabled = true; el.textContent = 'Added'; toast('Added to observation register');
+};
+
+// ---------- Reports ----------
+function periodRange(kind) {
+  const t = today(), d = new Date();
+  if (kind === 'Daily') return [t, t];
+  if (kind === 'Weekly') return [addDays(t, -6), t];
+  if (kind === 'Monthly') return [isoD(new Date(d.getFullYear(), d.getMonth(), 1)), t];
+  return [S.ui.rFrom || addDays(t, -6), S.ui.rTo || t];
+}
+function buildReport(kind) {
+  const [from, to] = periodRange(kind), st = stats(from, to), n = safetyNumbers(), s = S.settings;
+  const openHi = recs('obs').filter(r => r.status !== 'Closed' && (r.sev === 'High' || r.sev === 'Critical'));
+  const comp = COMPLIANCE.map(c => ({ ...c, st: S.recs.get('cmp_' + c.code)?.status || 'Not assessed' })).filter(c => c.st !== 'Compliant' && c.st !== 'Not applicable');
+  return { kind, from, to, st, n, s, openHi, comp, esc: escalations() };
+}
+function reportBody(R, forFile) {
+  const { st, n, s } = R, rows = (arr, f) => arr.map(f).join('');
+  const sec = (t, b) => `<h2>${t}</h2>${b}`;
+  const tbl = (h, body) => `<div class="tw"><table><tr>${h.map(x => `<th>${x}</th>`).join('')}</tr>${body}</table></div>`;
+  return `${forFile ? '' : ''}<h1>${R.kind} Safety Report</h1>
+  <p><b>${esc(s.siteName || 'Site')}</b>${s.location ? ', ' + esc(s.location) : ''} · Period ${fmtD(R.from)}${R.from !== R.to ? ' to ' + fmtD(R.to) : ''}<br>Client: ${esc(s.client || '-')} · Contractor: ${esc(s.contractor || '-')} · Workers on site: ${esc(s.workers || '-')}</p>
+  ${R.summary ? sec('Executive summary', md(R.summary)) : ''}
+  ${sec('Key safety statistics', tbl(['Indicator', 'Value'], [
+    ['Safe man-hours to date', n.mh ? n.mh.toLocaleString('en-IN') : '-'], ['Days since last LTI', n.sinceLTI ?? '-'], ['LTIFR (per 10⁶ man-hours, IS 3786)', n.ltifr != null ? n.ltifr.toFixed(2) : '-'],
+    ['Observations raised / closed', `${st.obs.length} / ${st.closed}`], ['Incidents in period', st.inc.length], ['Training sessions / man-hours', `${st.tr.length} / ${Math.round(st.trainHrs)}`],
+    ['Meetings held', st.meet.length], ['Safety spend in period', inr(st.spend)], ['Statutory compliance score', complianceScore() + '%']].map(([a, b]) => `<tr><td>${a}</td><td class="num">${b}</td></tr>`).join('')))}
+  ${sec('Observations by category', st.obs.length ? tbl(['Category', 'Count'], rows(Object.entries(st.byCat).sort((a, b) => b[1] - a[1]), ([k, v]) => `<tr><td>${esc(k)}</td><td class="num">${v}</td></tr>`)) + `<p>${SEVS.map(x => `${x}: ${st.bySev[x]}`).join(' · ')}</p>` : '<p>No observations in this period.</p>')}
+  ${sec('Observation register', st.obs.length ? tbl(['Date', 'Location', 'Observation', 'Severity', 'Action / responsible', 'Status'], rows(st.obs, r => `<tr><td>${fmtD(r.date)}</td><td>${esc(r.location)}</td><td>${esc(r.obs)}</td><td>${esc(r.sev)}</td><td>${esc(r.action)}${r.responsible ? ' – ' + esc(r.responsible) : ''}</td><td>${esc(r.status)}</td></tr>`)) : '<p>None.</p>')}
+  ${sec('Open high-risk items (all dates)', R.openHi.length ? tbl(['Raised', 'Location', 'Observation', 'Severity', 'Target'], rows(R.openHi, r => `<tr><td>${fmtD(r.date)}</td><td>${esc(r.location)}</td><td>${esc(r.obs)}</td><td>${esc(r.sev)}</td><td>${fmtD(r.target)}</td></tr>`)) : '<p>None open.</p>')}
+  ${sec('Incidents', st.inc.length ? tbl(['Date', 'Type', 'Location', 'Description', 'Status'], rows(st.inc, r => `<tr><td>${fmtD(r.date)}</td><td>${esc(r.type)}</td><td>${esc(r.location)}</td><td>${esc(r.desc)}</td><td>${esc(r.status)}</td></tr>`)) : '<p>No incidents reported in this period.</p>')}
+  ${sec('Training & toolbox talks', st.tr.length ? tbl(['Date', 'Type', 'Topic', 'Participants', 'Hours'], rows(st.tr, r => `<tr><td>${fmtD(r.date)}</td><td>${esc(r.type)}</td><td>${esc(r.topic)}</td><td class="num">${esc(r.participants)}</td><td class="num">${esc(r.hours)}</td></tr>`)) : '<p>None recorded.</p>')}
+  ${sec('Statutory items needing action', R.comp.length ? tbl(['Requirement', 'Reference', 'Status'], rows(R.comp, c => `<tr><td>${esc(c.item)}</td><td>${esc(L(c.law))}</td><td>${esc(c.st)}</td></tr>`)) : '<p>All tracked items compliant.</p>')}
+  ${sec('Escalations open', R.esc.length ? tbl(['Level', 'Issue', 'Detail'], rows(R.esc, e => `<tr><td>${e.lvl}</td><td>${esc(e.what)}</td><td>${esc(e.detail)}</td></tr>`)) : '<p>None.</p>')}
+  <p style="margin-top:24px">Prepared by: ____________________ (Safety Officer) &nbsp;&nbsp; Reviewed by: ____________________ (Project Manager)</p>`;
+}
+const docWrap = (title, body) => `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#111;max-width:900px;margin:24px auto;padding:0 16px}h1{font-size:20px;border-bottom:3px solid #f0a500;padding-bottom:6px}h2{font-size:15px;margin-top:22px}table{border-collapse:collapse;width:100%;margin:6px 0}th,td{border:1px solid #999;padding:5px 7px;text-align:left;vertical-align:top}th{background:#eee}.num{text-align:right}</style></head><body>${body}<p style="color:#777;font-size:10px;margin-top:30px">Generated by Site Safety Desk on ${fmtD(today())}. Legal references are a guide; verify against the currently notified Act, Rules and State notifications.</p></body></html>`;
+VIEWS.reports = () => {
+  const kind = S.ui.rKind || 'Daily', R = buildReport(kind);
+  R.summary = S.ui['rep_' + kind]?.text;
+  return `<div class="stack"><div class="panel"><div class="tabs">${['Daily', 'Weekly', 'Monthly', 'Custom'].map(k => `<button data-act="rKind" data-k="${k}" aria-pressed="${kind === k}">${k}</button>`).join('')}</div>
+  ${kind === 'Custom' ? `<div class="row"><div class="fld"><label for="rFrom">From</label><input type="date" id="rFrom" data-chg="rFrom" value="${R.from}"></div><div class="fld"><label for="rTo">To</label><input type="date" id="rTo" data-chg="rTo" value="${R.to}"></div></div>` : ''}
+  <div class="row" style="margin-top:10px"><button class="btn pri ai" data-act="repAI" ${S.ai ? '' : 'disabled'}>Write executive summary with Claude</button>
+  <button class="btn" data-act="repSave">Save report as file</button><button class="btn" data-act="repCopy">Copy as text</button><button class="btn" data-act="csvObs">Observations CSV</button></div>${aiOff()}
+  ${S.ui['rep_' + kind]?.busy ? '<p class="think">Claude is writing the summary…</p>' : ''}${S.ui['rep_' + kind]?.err ? `<p class="small" style="color:var(--crit)">${esc(S.ui['rep_' + kind].err)}</p>` : ''}</div>
+  <div class="panel out" style="background:var(--panel)" id="repView">${reportBody(R)}</div></div>`;
+};
+ACT.rKind = el => { S.ui.rKind = el.dataset.k; render(); };
+CHG.rFrom = el => { S.ui.rFrom = el.value; render(); };
+CHG.rTo = el => { S.ui.rTo = el.value; render(); };
+ACT.repAI = async el => {
+  const kind = S.ui.rKind || 'Daily', R = buildReport(kind), key = 'rep_' + kind;
+  const data = { period: [R.from, R.to], stats: { ...R.n, obs: R.st.obs.length, closed: R.st.closed, bySev: R.st.bySev, byCat: R.st.byCat, trainingManHours: R.st.trainHrs, spend: R.st.spend },
+    observations: R.st.obs.map(o => ({ d: o.date, loc: o.location, o: o.obs, c: o.cat, s: o.sev, st: o.status })), incidents: R.st.inc.map(i => ({ d: i.date, t: i.type, desc: i.desc, st: i.status })),
+    openHighRisk: R.openHi.map(o => o.obs), compliancePending: R.comp.map(c => c.item + ': ' + c.st), escalations: R.esc.map(e => e.lvl + ' ' + e.what) };
+  S.ui[key] = { busy: true }; render();
+  try { S.ui[key] = { text: await ask(`Write the executive summary for a ${kind.toLowerCase()} site safety report for management. 120–200 words then up to 6 bullet points: overall safety performance, top risks, repeat issues, incidents, compliance gaps, and the decisions or support needed from management. Use only this data:\n${JSON.stringify(data).slice(0, 60000)}`) }; }
+  catch (e) { S.ui[key] = { err: aiErr(e) }; }
+  render();
+};
+ACT.repSave = () => { const kind = S.ui.rKind || 'Daily', R = buildReport(kind); R.summary = S.ui['rep_' + kind]?.text; saveFile(`${kind.toLowerCase()}-safety-report-${R.to}.html`, docWrap(kind + ' Safety Report', reportBody(R, true))); };
+ACT.repCopy = () => copy($('#repView').innerText);
+
+// ---------- HIRA ----------
+VIEWS.hira = () => {
+  const h = S.ui.hira;
+  const saved = recs('hira');
+  const rCell = (l, s) => { const r = risk(l, s); return `<span class="sev ${band(r)}">${r} ${bandLabel(r)}</span>`; };
+  const sel = (i, k, v) => `<select data-chg="hiraLS" data-i="${i}" data-k="${k}" aria-label="${k}">${[1, 2, 3, 4, 5].map(n => `<option${n == v ? ' selected' : ''}>${n}</option>`).join('')}</select>`;
+  return `<div class="stack"><div class="panel"><h2>Prepare a HIRA</h2>
+  <form class="f" data-form="hiraStart">
+   <div class="fld"><label for="hs_act">Activity from library</label><select id="hs_act" name="act"><option value="">Choose…</option>${Object.keys(HIRA_LIB).map(a => `<option>${esc(a)}</option>`).join('')}</select></div>
+   <div class="fld"><label for="hs_custom">Or describe a custom activity</label><input id="hs_custom" name="custom" placeholder="e.g. Facade glazing with gondola"></div>
+   <div class="fld"><label for="hs_loc">Location</label><input id="hs_loc" name="loc"></div>
+   <div class="fld"><label for="hs_by">Prepared by</label><input id="hs_by" name="by"></div>
+   <div class="actions"><button class="btn pri" type="submit">Load from library</button><button class="btn ai" type="button" data-act="hiraAI" ${S.ai ? '' : 'disabled'}>Generate with Claude</button>${S.ui.hiraBusy ? '<span class="think">Claude is preparing the HIRA…</span>' : ''}</div></form>${aiOff()}
+   ${S.ui.hiraErr ? `<p class="small" style="color:var(--crit)">${esc(S.ui.hiraErr)}</p>` : ''}
+   <p class="small muted">Risk = Likelihood (1–5) × Severity (1–5). 1–4 Low, 5–9 Medium, 10–15 High, 16–25 Very high: stop work until controls are in place.</p></div>
+  ${h ? `<div class="panel"><div class="row" style="justify-content:space-between"><h2 style="margin:0">HIRA: ${esc(h.activity)}</h2><div class="row"><button class="btn pri" data-act="hiraSave">Save HIRA</button><button class="btn" data-act="hiraFile">Save as file</button><button class="btn" data-act="hiraAddRow">Add row</button><button class="btn ghost" data-act="hiraClose">Close</button></div></div>
+   <p class="small muted">${esc(h.loc || '')} ${h.by ? '· Prepared by ' + esc(h.by) : ''} · ${fmtD(h.date)}</p>
+   <div class="tw"><table><tr><th>#</th><th>Hazard</th><th>Consequence</th><th>L</th><th>S</th><th>Initial risk</th><th>Controls</th><th>L</th><th>S</th><th>Residual</th><th>Reference</th><th></th></tr>
+   ${h.rows.map((r, i) => `<tr><td>${i + 1}</td><td><textarea data-chg="hiraTxt" data-i="${i}" data-k="h" rows="2" style="min-height:0;min-width:150px">${esc(r.h)}</textarea></td><td><textarea data-chg="hiraTxt" data-i="${i}" data-k="c" rows="2" style="min-height:0;min-width:110px">${esc(r.c)}</textarea></td>
+   <td>${sel(i, 'L', r.L)}</td><td>${sel(i, 'S', r.S)}</td><td>${rCell(r.L, r.S)}</td><td><textarea data-chg="hiraTxt" data-i="${i}" data-k="ctrl" rows="3" style="min-height:0;min-width:220px">${esc(r.ctrl)}</textarea></td>
+   <td>${sel(i, 'rL', r.rL)}</td><td>${sel(i, 'rS', r.rS)}</td><td>${rCell(r.rL, r.rS)}</td><td class="small" style="min-width:160px">${esc(L(r.law || ''))}</td><td><button class="btn ghost" data-act="hiraDelRow" data-i="${i}" aria-label="Remove row">✕</button></td></tr>`).join('')}</table></div></div>` : ''}
+  <div class="panel"><h2>Saved HIRAs</h2>${saved.length ? `<div class="list">${saved.map(r => `<div class="it"><div class="b"><b>${esc(r.activity)}</b>${exTag(r)}<div class="small muted">${fmtD(r.date)} · ${esc(r.loc || '')} · ${r.rows.length} hazards · highest residual ${Math.max(...r.rows.map(x => risk(x.rL, x.rS)))}</div></div><button class="btn" data-act="hiraOpen" data-id="${r.id}">Open</button></div>`).join('')}</div>` : '<p class="muted">None saved yet.</p>'}</div></div>`;
+};
+FORM.hiraStart = f => {
+  const d = formData(f);
+  if (!d.act) { toast('Choose an activity, or use Generate with Claude for a custom one'); return; }
+  S.ui.hira = { activity: d.act, loc: d.loc, by: d.by, date: today(), rows: structuredClone(HIRA_LIB[d.act]) }; render();
+};
+ACT.hiraAI = async () => {
+  const f = $('form[data-form="hiraStart"]'), d = formData(f), act = d.custom || d.act;
+  if (!act) { toast('Describe the activity first'); return; }
+  S.ui.hiraBusy = true; S.ui.hiraErr = ''; render();
+  try {
+    const rows = await ask(`Prepare a Hazard Identification and Risk Assessment (HIRA) for the construction activity "${act}"${d.loc ? ' at ' + d.loc : ''}. Cover each step of the activity, people, plant, materials, environment and emergency. 6–12 rows.
+Reply with only a JSON array: [{"h":"hazard","c":"consequence","L":1-5,"S":1-5,"ctrl":"controls in hierarchy order (eliminate, engineer, admin/permit, PPE)","rL":1-5,"rS":1-5,"law":"main Indian legal or IS/NBC reference"}]`, { json: true });
+    S.ui.hira = { activity: act, loc: d.loc, by: d.by, date: today(), rows: (Array.isArray(rows) ? rows : []).map(r => ({ ...r, L: num(r.L) || 3, S: num(r.S) || 3, rL: num(r.rL) || 1, rS: num(r.rS) || num(r.S) || 3 })) };
+  } catch (e) { S.ui.hiraErr = aiErr(e); }
+  S.ui.hiraBusy = false; render();
+};
+CHG.hiraLS = el => { S.ui.hira.rows[el.dataset.i][el.dataset.k] = num(el.value); render(); };
+CHG.hiraTxt = el => { S.ui.hira.rows[el.dataset.i][el.dataset.k] = el.value; };
+ACT.hiraAddRow = () => { S.ui.hira.rows.push({ h: '', c: '', L: 3, S: 3, ctrl: '', rL: 1, rS: 3, law: '' }); render(); };
+ACT.hiraDelRow = el => { S.ui.hira.rows.splice(el.dataset.i, 1); render(); };
+ACT.hiraClose = () => { S.ui.hira = null; render(); };
+ACT.hiraSave = async () => { const h = S.ui.hira; const r = await put({ ...h, kind: 'hira', id: h.id }); S.ui.hira = { ...r }; toast('HIRA saved'); };
+ACT.hiraOpen = el => { S.ui.hira = structuredClone(S.recs.get(el.dataset.id)); render(); scrollTop(); };
+const hiraDoc = h => `<h1>Hazard Identification & Risk Assessment</h1><p><b>Activity:</b> ${esc(h.activity)} · <b>Location:</b> ${esc(h.loc || '-')} · <b>Date:</b> ${fmtD(h.date)} · <b>Prepared by:</b> ${esc(h.by || '-')}<br><b>Site:</b> ${esc(S.settings.siteName || '-')}</p>
+<table><tr><th>#</th><th>Hazard</th><th>Consequence</th><th>L</th><th>S</th><th>Risk</th><th>Controls</th><th>L</th><th>S</th><th>Residual</th><th>Reference</th></tr>${h.rows.map((r, i) => `<tr><td>${i + 1}</td><td>${esc(r.h)}</td><td>${esc(r.c)}</td><td>${r.L}</td><td>${r.S}</td><td>${risk(r.L, r.S)} ${bandLabel(risk(r.L, r.S))}</td><td>${esc(r.ctrl)}</td><td>${r.rL}</td><td>${r.rS}</td><td>${risk(r.rL, r.rS)} ${bandLabel(risk(r.rL, r.rS))}</td><td>${esc(L(r.law || ''))}</td></tr>`).join('')}</table>
+<p>Risk matrix: Likelihood 1 (rare) – 5 (almost certain) × Severity 1 (first aid) – 5 (fatality). 1–4 Low, 5–9 Medium, 10–15 High, 16–25 Very high.</p><p>Prepared by: __________ &nbsp; Reviewed by (Safety Manager): __________ &nbsp; Approved by (Project Manager): __________</p>`;
+ACT.hiraFile = () => { const h = S.ui.hira; saveFile('HIRA-' + h.activity.replace(/\W+/g, '-') + '.html', docWrap('HIRA – ' + h.activity, hiraDoc(h))); };
+
+// ---------- SOPs ----------
+function sopTemplate(act) {
+  const rows = HIRA_LIB[act] || [];
+  const laws = [...new Set(rows.map(r => r.law))];
+  return `# Standard Operating Procedure: ${act}\n\n**Site:** ${S.settings.siteName || '-'} · **Rev:** 00 · **Date:** ${fmtD(today())}\n\n## 1. Purpose\nTo carry out ${act.toLowerCase()} safely and in line with the BOCW Act 1996, BOCW Central Rules 1998, the OSH Code 2020 and applicable IS codes.\n\n## 2. Scope\nAll employees, contractors and sub-contractors engaged in ${act.toLowerCase()} at this site.\n\n## 3. Responsibilities\n- **Project manager:** provide resources and approve the method statement.\n- **Site engineer / supervisor:** brief the gang, issue the work permit, supervise continuously.\n- **Safety officer:** verify controls, inspect, stop unsafe work.\n- **Workers:** follow this SOP, use PPE, report hazards.\n\n## 4. Pre-start requirements\n- Method statement and HIRA reviewed and briefed in the toolbox talk.\n- Valid work permit where applicable.\n- Competent, trained and medically fit workers.\n- Equipment inspected and tagged.\n\n## 5. Hazards and controls\n${rows.map(r => `- **${r.h}:** ${r.ctrl}.`).join('\n')}\n\n## 6. PPE\n- Safety helmet (IS 2925), safety shoes (IS 15298), hi-vis jacket, gloves; plus task-specific PPE (harness IS 3521, goggles IS 5983, respirator, ear protection).\n\n## 7. Emergency response\n- Stop work, raise alarm, give first aid, call the site ambulance / 108.\n- Inform the safety officer and site in-charge immediately; preserve the scene.\n- Report under BOCW Act s.39 where the injury prevents work for 48 hours or more.\n\n## 8. References\n${laws.map(l => '- ' + L(l)).join('\n')}\n- ${L('NBC7')}\n\n## 9. Records\nWork permit, toolbox talk attendance, inspection checklists.`;
+}
+VIEWS.sop = () => {
+  const cur = S.ui.sop, saved = recs('sop');
+  return `<div class="stack"><div class="panel"><h2>Create an SOP</h2><form class="f" data-form="sopLib">
+  <div class="fld"><label for="sop_act">Activity</label><select id="sop_act" name="act">${Object.keys(HIRA_LIB).map(a => `<option>${esc(a)}</option>`).join('')}</select></div>
+  <div class="fld"><label for="sop_custom">Or custom title</label><input id="sop_custom" name="custom" placeholder="e.g. Tower crane erection and dismantling"></div>
+  <div class="fld"><label for="sop_lang">Language</label><select id="sop_lang" name="lang"><option>English</option><option>Hindi</option><option>Marathi</option><option>English + Hindi</option></select></div>
+  <div class="actions"><button class="btn" type="submit">Build from library</button><button class="btn pri ai" type="button" data-act="sopAI" ${S.ai ? '' : 'disabled'}>Draft with Claude</button></div></form>${aiOff()}</div>
+  ${cur || S.ui.sopAi ? `<div class="panel"><div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(cur?.title || 'SOP draft')}</h2><div class="row"><button class="btn pri" data-act="sopSave">Save SOP</button><button class="btn" data-act="sopFile">Save as file</button><button class="btn ghost" data-act="sopClose">Close</button></div></div>
+   ${S.ui.sopAi ? aiBox('sopAi') : `<div class="out">${md(cur.content)}</div>`}</div>` : ''}
+  <div class="panel"><h2>SOP register</h2>${saved.length ? `<div class="list">${saved.map(r => `<div class="it"><div class="b"><b>${esc(r.title)}</b>${exTag(r)}<div class="small muted">${fmtD(r.date)} · ${esc(r.lang || 'English')}</div></div><button class="btn" data-act="sopOpen" data-id="${r.id}">Open</button><button class="btn ghost danger" data-act="delRec" data-id="${r.id}">Delete</button></div>`).join('')}</div>` : '<p class="muted">No SOPs saved yet.</p>'}</div></div>`;
+};
+FORM.sopLib = f => { const d = formData(f); S.ui.sopAi = null; S.ui.sop = { title: 'SOP – ' + d.act, content: sopTemplate(d.act), lang: 'English' }; render(); };
+ACT.sopAI = el => {
+  const d = formData($('form[data-form="sopLib"]')), t = d.custom || d.act;
+  S.ui.sop = { title: 'SOP – ' + t, lang: d.lang };
+  aiText('sopAi', `Write a complete Standard Operating Procedure for "${t}" on an Indian construction site, in ${d.lang}. Sections: Purpose, Scope, Definitions, Responsibilities (PM, engineer, supervisor, safety officer, workers), Pre-start requirements and permits, Step-by-step procedure with the hazard and control at each step, PPE with IS codes, Inspection checklist, Emergency response, Legal and standard references (BOCW Act/Rules, OSH Code, IS codes, NBC Part 7), Records. Use headings and numbered steps.`, el);
+};
+ACT.sopSave = () => { const c = S.ui.sop; const content = S.ui.sopAi?.text || c.content; if (!content) return; put({ kind: 'sop', id: c.id, title: c.title, lang: c.lang, content, date: today() }); S.ui.sop = null; S.ui.sopAi = null; toast('SOP saved'); };
+ACT.sopFile = () => { const c = S.ui.sop; saveFile(c.title.replace(/\W+/g, '-') + '.html', docWrap(c.title, md(S.ui.sopAi?.text || c.content))); };
+ACT.sopOpen = el => { const r = S.recs.get(el.dataset.id); S.ui.sopAi = null; S.ui.sop = { ...r }; render(); scrollTop(); };
+ACT.sopClose = () => { S.ui.sop = null; S.ui.sopAi = null; render(); };
+
+// ---------- Training ----------
+VIEWS.training = () => {
+  const list = recs('training'), t = today();
+  const m30 = list.filter(r => r.date >= addDays(t, -29) && r.status !== 'Planned');
+  return `<div class="stack">${crud('training')}
+  <div class="grid2"><div class="panel"><h2>Prepare a toolbox talk</h2><form class="f" data-form="tbt">
+   <div class="fld"><label for="tbt_topic">Topic</label><input id="tbt_topic" name="topic" value="${esc(S.ui.tbtTopic || '')}" list="tbtList" placeholder="Work at height – harness use"></div>
+   <datalist id="tbtList">${[...Object.keys(HIRA_LIB), ...VIOL.map(v => v.title)].map(x => `<option value="${esc(x)}">`).join('')}</datalist>
+   <div class="fld"><label for="tbt_lang">Language</label><select id="tbt_lang" name="lang"><option>Hindi</option><option>English</option><option>Marathi</option><option>English + Hindi</option></select></div>
+   <div class="fld"><label for="tbt_min">Minutes</label><select id="tbt_min" name="min"><option>10</option><option>15</option><option>30</option><option>60</option></select></div>
+   <div class="actions"><button class="btn pri ai" type="submit" ${S.ai ? '' : 'disabled'}>Prepare talk with Claude</button><button class="btn" type="button" data-act="tbtRules">Use built-in outline</button></div></form>${aiOff()}${aiBox('tbt')}</div>
+  <div class="panel"><h2>Last 30 days</h2><div class="kpis"><div class="kpi"><div class="k">Sessions</div><div class="v">${m30.length}</div></div><div class="kpi"><div class="k">Participants</div><div class="v">${m30.reduce((a, r) => a + num(r.participants), 0)}</div></div><div class="kpi"><div class="k">Man-hours</div><div class="v">${Math.round(m30.reduce((a, r) => a + num(r.participants) * num(r.hours), 0))}</div></div></div>
+  <p class="small muted" style="margin-top:10px">Induction for every new worker and a daily toolbox talk at each work front are expected under the BOCW Rules and your site safety plan.</p></div></div>
+  <div class="row" style="justify-content:space-between"><h2 style="margin:0">Training register</h2><button class="btn pri" data-act="newRec" data-kind="training">Record session</button></div>
+  ${list.length ? `<div class="tw"><table><tr><th>Date</th><th>Type</th><th>Topic</th><th>Trainer</th><th class="num">Participants</th><th class="num">Hours</th><th>Status</th><th></th></tr>${list.map(r => `<tr><td class="mono">${fmtD(r.date)}</td><td>${esc(r.type)}</td><td>${esc(r.topic)}${exTag(r)}</td><td>${esc(r.trainer)}</td><td class="num">${esc(r.participants)}</td><td class="num">${esc(r.hours)}</td><td>${esc(r.status)}</td><td><button class="btn ghost" data-act="editRec" data-id="${r.id}">Edit</button></td></tr>`).join('')}</table></div>` : '<div class="empty">No sessions recorded yet.</div>'}</div>`;
+};
+FORM.tbt = f => {
+  const d = formData(f); S.ui.tbtTopic = d.topic;
+  if (!d.topic) { toast('Enter a topic'); return; }
+  aiText('tbt', `Prepare a ${d.min}-minute toolbox talk for construction workers on "${d.topic}" in ${d.lang} (use simple words workers understand; if Hindi or Marathi, write in Devanagari script). Include: opening question, why it matters (a real-style incident example from Indian sites, no names), 5–8 key do's and don'ts, PPE needed, what to do in an emergency, 3 quick questions to check understanding, and a one-line pledge. Add a short note for the trainer with the legal reference.`, f.querySelector('button[type=submit]'));
+};
+ACT.tbtRules = () => {
+  const topic = $('#tbt_topic').value || 'Work at height'; S.ui.tbtTopic = topic;
+  const lib = HIRA_LIB[topic], v = VIOL.find(x => x.title === topic);
+  const pts = lib ? lib.map(r => `- **${r.h}** – ${r.ctrl}`) : v ? v.fix.map(x => '- ' + x) : ['- Explain the task and its hazards', '- Show the correct PPE and how to wear it', '- Explain the permit and who can stop work', '- Explain emergency contacts and assembly point'];
+  S.ui.tbt = { text: `# Toolbox talk: ${topic}\n\n**Date:** ${fmtD(today())} · **Duration:** 10–15 minutes\n\n## Start\nAsk: “What can go wrong in today’s work?”\n\n## Key points\n${pts.join('\n')}\n\n## PPE\n- Helmet, safety shoes, hi-vis jacket, gloves; task-specific PPE as required.\n\n## Emergency\n- Stop work, shout for help, inform supervisor, first-aider and safety officer.\n\n## Check understanding\n1. What is the biggest hazard today?\n2. Who do you tell if something is unsafe?\n3. Where is the first-aid box and assembly point?\n\n## Reference\n${(lib ? [...new Set(lib.map(r => r.law))] : v ? v.laws : ['B40']).map(x => '- ' + L(x)).join('\n')}` };
+  render();
+};
+
+// ---------- Meetings ----------
+VIEWS.meetings = () => {
+  const list = recs('meeting');
+  const ed = S.ui.edit?.kind === 'meeting';
+  return `<div class="stack">${crud('meeting', { formExtra: () => `<div class="actions"><button class="btn ai" type="button" data-act="momAI" ${S.ai ? '' : 'disabled'}>Draft minutes with Claude</button><button class="btn" type="button" data-act="momRules">Format minutes without AI</button>${S.ui.momBusy ? '<span class="think">Claude is drafting the minutes…</span>' : ''}</div>` })}
+  ${ed ? '' : `<div class="panel flat"><h3>Meetings the site is expected to hold</h3><ul class="small"><li>Monthly safety committee meeting where 500+ workers are employed (${esc(L('B38'))}). Record minutes and circulate.</li><li>Weekly safety review with contractors and engineers; daily toolbox talks at each work front.</li><li>Incident review within 24 hours of any reportable incident.</li></ul></div>`}
+  <div class="row" style="justify-content:space-between"><h2 style="margin:0">Meeting register</h2><button class="btn pri" data-act="newRec" data-kind="meeting">New meeting</button></div>
+  ${list.length ? `<div class="list panel">${list.map(r => `<div class="it"><div class="b"><b>${esc(r.type)}</b> · ${fmtD(r.date)}${exTag(r)}<div class="small muted">Chair: ${esc(r.chair || '-')} · ${esc((r.attendees || '').slice(0, 90))}</div>
+   ${S.ui.openMom === r.id && r.mom ? `<div class="out" style="margin-top:8px">${md(r.mom)}</div>` : ''}</div>
+   ${r.mom ? `<button class="btn" data-act="momToggle" data-id="${r.id}">${S.ui.openMom === r.id ? 'Hide' : 'View'} MoM</button><button class="btn" data-act="momFile" data-id="${r.id}">Save file</button>` : ''}<button class="btn ghost" data-act="editRec" data-id="${r.id}">Edit</button></div>`).join('')}</div>` : '<div class="empty">No meetings recorded yet.</div>'}</div>`;
+};
+function momTemplate(d) {
+  const pts = (d.notes || '').split(/\n+/).map(s => s.replace(/^[-*•\d.)\s]+/, '').trim()).filter(Boolean);
+  return `# Minutes of Meeting – ${d.type}\n\n**Date:** ${fmtD(d.date)} · **Site:** ${S.settings.siteName || '-'} · **Chaired by:** ${d.chair || '-'}\n\n**Attendees:** ${d.attendees || '-'}\n\n## Agenda\n${(d.agenda || '-').split(/\n+/).map(a => '- ' + a.replace(/^[-*•\s]+/, '')).join('\n')}\n\n## Discussion and decisions\n${pts.map((p, i) => `${i + 1}. ${p}`).join('\n') || '-'}\n\n## Action items\n| # | Action | Responsible | Target date | Status |\n|---|---|---|---|---|\n${pts.map((p, i) => `| ${i + 1} | ${p.replace(/\|/g, '/')} |  |  | Open |`).join('\n') || '| 1 | | | | |'}\n\n**Next meeting:** ${fmtD(addDays(d.date || today(), 30))}`;
+}
+ACT.momRules = () => { const f = $('form[data-form="rec"]'), d = formData(f); f.querySelector('[name=mom]').value = momTemplate(d); };
+ACT.momAI = async () => {
+  const f = $('form[data-form="rec"]'), d = formData(f), ta = f.querySelector('[name=mom]');
+  if (!d.notes) { toast('Add rough notes first'); return; }
+  S.ui.momBusy = true; ta.value = 'Drafting…';
+  try {
+    ta.value = await ask(`Draft formal Minutes of Meeting for a "${d.type}" held on ${fmtD(d.date)} at a construction site. Chair: ${d.chair}. Attendees: ${d.attendees}. Agenda: ${d.agenda}.
+Rough notes:\n${d.notes}\n\nFormat: title line, meeting details, attendees, agenda, discussion points (numbered), decisions, an action-item table (| # | Action | Responsible | Target date |), and next meeting date. If it is a safety committee meeting, mention it is held under BOCW Act s.38 / OSH Code safety committee requirements. Keep it factual; do not invent decisions not in the notes.`, { onText: ({ text }) => ta.value = text });
+  } catch (e) { ta.value = momTemplate(d); toast(aiErr(e)); }
+  S.ui.momBusy = false;
+};
+ACT.momToggle = el => { S.ui.openMom = S.ui.openMom === el.dataset.id ? null : el.dataset.id; render(); };
+ACT.momFile = el => { const r = S.recs.get(el.dataset.id); saveFile(`MoM-${r.date}.html`, docWrap('Minutes of Meeting', md(r.mom))); };
+
+// ---------- Incidents ----------
+function statutory(type) {
+  const serious = ['Fatal', 'Lost time injury', 'Dangerous occurrence'].includes(type);
+  const out = [];
+  out.push('Give first aid / medical care; preserve the scene and photographs; take witness statements.');
+  if (type === 'Fatal') out.push('Inform police and the BOCW Inspector immediately (telephone/e-mail), then written notice in the prescribed form.');
+  if (serious) out.push(`Send written notice of accident to the authority within the time prescribed by the State BOCW Rules – ${L('B39')}; ${L('OSH10')}.`);
+  if (['Fatal', 'Lost time injury', 'Medical treatment case'].includes(type)) out.push(`Report to the insurer / ESIC and process compensation – ${L('EC')}.`);
+  if (type === 'Dangerous occurrence') out.push('Notify the Inspector even if nobody was injured (collapse of scaffold, crane failure, fire, etc.).');
+  out.push('Enter in the accident register; investigate (root cause, 5-Why) within 24–48 hours; share lessons learnt in toolbox talks.');
+  if (serious) out.push('Escalate to Corporate EHS / management immediately (L4).');
+  return out;
+}
+VIEWS.incidents = () => {
+  const list = recs('incident'), ed = S.ui.edit?.kind === 'incident';
+  const typ = ed ? (S.recs.get(S.ui.edit.id)?.type || 'Near miss') : null;
+  return `<div class="stack">${crud('incident', { formExtra: () => `<div class="actions"><button class="btn ai" type="button" data-act="rcaAI" ${S.ai ? '' : 'disabled'}>Draft investigation with Claude</button>${S.ui.rcaBusy ? '<span class="think">Claude is analysing…</span>' : ''}</div>` })}
+  ${ed ? `<div class="panel flat"><h3>Statutory steps for this type of incident</h3><p class="small muted">Shown for the saved type (${esc(typ)}). Change the type and save to update.</p><ol>${statutory(typ).map(s => `<li>${esc(s)}</li>`).join('')}</ol></div>` : ''}
+  <div class="row" style="justify-content:space-between"><h2 style="margin:0">Incident register</h2><button class="btn pri" data-act="newRec" data-kind="incident">Report incident</button></div>
+  ${list.length ? `<div class="tw"><table><tr><th>Date</th><th>Type</th><th>Location</th><th>What happened</th><th>Notice</th><th>Status</th><th></th></tr>${list.map(r => `<tr><td class="mono">${fmtD(r.date)}</td><td>${sevTag(['Fatal', 'Lost time injury', 'Dangerous occurrence'].includes(r.type) ? 'Critical' : r.type === 'Near miss' ? 'Low' : 'High').replace(/>[^<]+</, '>' + esc(r.type) + '<')}</td><td>${esc(r.location)}</td><td style="min-width:220px">${esc(r.desc)}${exTag(r)}</td><td>${esc(r.notified)}</td><td class="st ${esc((r.status || '').split(' ')[0])}">${esc(r.status)}</td><td><button class="btn ghost" data-act="editRec" data-id="${r.id}">Open</button><button class="btn ghost" data-act="incFile" data-id="${r.id}">File</button></td></tr>`).join('')}</table></div>` : '<div class="empty">No incidents reported. Report near misses too: they are the cheapest lessons.</div>'}</div>`;
+};
+ACT.rcaAI = async () => {
+  const f = $('form[data-form="rec"]'), d = formData(f);
+  if (!d.desc) { toast('Describe what happened first'); return; }
+  S.ui.rcaBusy = true; render();
+  const f2 = $('form[data-form="rec"]');
+  for (const [k, v] of Object.entries(d)) { const e = f2.querySelector(`[name="${k}"]`); if (e) e.value = v; }
+  try {
+    const r = await ask(`Investigate this construction-site incident in India. Type: ${d.type}. Location: ${d.location}. Person/trade: ${d.person} ${d.trade}. Injury: ${d.injury}. What happened: ${d.desc}. Immediate action: ${d.immediate}.
+Reply with only JSON: {"rootCause":"5-Why chain written as Why 1 … Why 5, then the root cause in one sentence, covering unsafe act, unsafe condition and system failure","capa":"numbered corrective and preventive actions with responsible role and target days","notice":"Not required|Pending"}`, { json: true });
+    const f3 = $('form[data-form="rec"]');
+    for (const [k, v] of Object.entries(d)) { const e = f3.querySelector(`[name="${k}"]`); if (e) e.value = v; }
+    f3.querySelector('[name=rootCause]').value = r.rootCause || '';
+    f3.querySelector('[name=capa]').value = r.capa || '';
+    if (r.notice === 'Pending' && f3.querySelector('[name=notified]').value === 'Not required') f3.querySelector('[name=notified]').value = 'Pending';
+    toast('Investigation drafted – review before saving');
+  } catch (e) { toast(aiErr(e)); }
+  S.ui.rcaBusy = false; const sp = $('.think'); if (sp) sp.remove();
+};
+ACT.incFile = el => {
+  const r = S.recs.get(el.dataset.id);
+  const row = (k, v) => `<tr><th style="width:30%">${k}</th><td>${esc(v || '-').replace(/\n/g, '<br>')}</td></tr>`;
+  saveFile(`Incident-report-${r.date}.html`, docWrap('Incident Report', `<h1>Incident Investigation Report</h1><table>${row('Site', S.settings.siteName)}${row('Date & time', fmtD(r.date) + ' ' + (r.time || ''))}${row('Type', r.type)}${row('Location', r.location)}${row('Person involved', r.person)}${row('Trade & contractor', r.trade)}${row('Injury', r.injury)}${row('Man-days lost', r.daysLost)}${row('Description', r.desc)}${row('Immediate action', r.immediate)}${row('Root cause', r.rootCause)}${row('Corrective & preventive actions', r.capa)}${row('Notice to authority', r.notified)}${row('Status', r.status)}</table><h2>Statutory steps</h2><ol>${statutory(r.type).map(s => `<li>${esc(s)}</li>`).join('')}</ol><p>Investigated by: __________ &nbsp; Safety Manager: __________ &nbsp; Project Manager: __________</p>`));
+};
+
+// ---------- Escalation ----------
+VIEWS.escalation = () => {
+  const list = escalations(), m = S.settings.esc, sel = S.ui.escSel || (S.ui.escSel = {});
+  const hist = recs('esc');
+  return `<div class="stack"><div class="panel"><h2>Escalation matrix</h2><div class="tw"><table><tr><th>Level</th><th>Role</th><th>Name</th><th>Contact</th><th>When</th></tr>
+  ${LEVELS.map(l => `<tr><td><b>${l}</b></td><td>${esc(m[l]?.role)}</td><td>${esc(m[l]?.name || '–')}</td><td>${esc(m[l]?.contact || '–')}</td><td class="small">${{ L1: 'Any open observation', L2: 'High risk open 2+ days, overdue actions, urgent PRs pending', L3: 'Critical observation, MTC/fire, statutory non-compliance, accident notice pending', L4: 'LTI, fatality, dangerous occurrence' }[l]}</td></tr>`).join('')}</table></div>
+  <p class="small muted" style="margin-top:8px">Names and contacts are set in <a href="#" data-act="go" data-r="settings">Site settings</a>.</p></div>
+  <div class="panel"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Items to escalate (${list.length})</h2><div class="row"><button class="btn" data-act="escDraft">Draft escalation email</button><button class="btn ai" data-act="escAI" ${S.ai ? '' : 'disabled'}>Write with Claude</button></div></div>
+  ${list.length ? `<div class="list" style="margin-top:8px">${list.map(e => `<label class="it"><input type="checkbox" style="width:auto" data-chg="escPick" data-id="${e.id}" ${sel[e.id] !== false ? 'checked' : ''}><span class="sev ${e.lvl >= 'L3' ? 'Critical' : 'High'}">${e.lvl}</span><span class="b"><b>${esc(e.what)}</b>${exTag(e.ref)}<span class="small muted" style="display:block">${esc(e.detail)}${e.loc ? ' · ' + esc(e.loc) : ''}${e.since ? ' · since ' + fmtD(e.since) : ''}${lastEsc(e.id) ? ' · escalated ' + fmtD(lastEsc(e.id)) : ''}</span></span></label>`).join('')}</div>` : '<p class="muted">Nothing to escalate.</p>'}
+  ${aiBox('escMail')}
+  ${S.ui.escMail?.text && !S.ui.escMail.busy ? `<div class="row" style="margin-top:8px"><button class="btn pri" data-act="escLog">Mark these as escalated</button></div>` : ''}</div>
+  <div class="panel"><h2>Escalation log</h2>${hist.length ? `<div class="list">${hist.map(h => `<div class="it"><div class="b"><b>${fmtD(h.date)}</b> · to ${esc(h.to)}${exTag(h)}<div class="small muted">${esc(h.subject)}</div></div></div>`).join('')}</div>` : '<p class="muted">No escalations sent yet.</p>'}</div></div>`;
+};
+const lastEsc = id => recs('esc').filter(h => (h.items || []).includes(id)).map(h => h.date).sort().pop();
+CHG.escPick = el => { S.ui.escSel[el.dataset.id] = el.checked; };
+const escPicked = () => escalations().filter(e => S.ui.escSel?.[e.id] !== false);
+function escTo(items) { const top = items.map(e => e.lvl).sort().pop() || 'L2', m = S.settings.esc; return LEVELS.filter(l => l >= 'L2' && l <= top).map(l => `${m[l]?.name || m[l]?.role}${m[l]?.contact ? ' <' + m[l].contact + '>' : ''}`).join(', '); }
+ACT.escDraft = () => {
+  const it = escPicked(); if (!it.length) { toast('Select at least one item'); return; }
+  const s = S.settings;
+  S.ui.escMail = { text: `**To:** ${escTo(it)}\n\n**Subject:** Safety escalation – ${s.siteName || 'site'} – ${it.length} item(s) need your action (${fmtD(today())})\n\nDear Sir/Madam,\n\nThe following safety issues at ${s.siteName || 'site'} need your intervention. They have not been resolved at site level within the agreed time.\n\n| # | Level | Issue | Detail | Since |\n|---|---|---|---|---|\n${it.map((e, i) => `| ${i + 1} | ${e.lvl} | ${e.what} | ${(e.detail || '').replace(/\|/g, '/').slice(0, 160)}${e.loc ? ' (' + e.loc + ')' : ''} | ${fmtD(e.since)} |`).join('\n')}\n\n**Support requested:** release of resources / instructions to the responsible contractor to close these items by ${fmtD(addDays(today(), 1))}. Work on critical items remains stopped until closure.\n\nThese items relate to the employer’s duties under the BOCW Act 1996 (s.40, s.44) and the OSH Code 2020 (s.6).\n\nRegards,\n${s.esc.L1?.name || 'Safety Officer'}\n${s.esc.L1?.role || ''}` };
+  render();
+};
+ACT.escAI = el => {
+  const it = escPicked(); if (!it.length) { toast('Select at least one item'); return; }
+  aiText('escMail', `Write a firm, professional escalation email from the site safety officer to management. Recipients: ${escTo(it)}. Start with "To:" and "Subject:" lines. Explain the risk of each item in one line, the legal exposure in one paragraph (Indian law), the decision or support needed, and a deadline. End with a 3-line WhatsApp version.\nItems:\n${it.map(e => `${e.lvl} | ${e.what} | ${e.detail} | ${e.loc || ''} | since ${e.since}`).join('\n')}`, el);
+};
+ACT.escLog = () => {
+  const it = escPicked(), t = S.ui.escMail.text, subj = (t.match(/Subject:\**\s*(.*)/) || [, 'Safety escalation'])[1];
+  put({ kind: 'esc', date: today(), to: escTo(it), subject: subj, items: it.map(e => e.id), body: t });
+  S.ui.escMail = null; toast('Logged as escalated');
+};
+
+// ---------- Cost ----------
+VIEWS.cost = () => {
+  const list = recs('cost'), b = S.settings.budget || {};
+  const spent = {}; list.forEach(c => spent[c.head] = (spent[c.head] || 0) + num(c.amount));
+  const committed = {}; recs('pr').filter(p => ['Approved', 'Ordered'].includes(p.status)).forEach(p => committed[p.head || 'PPE'] = (committed[p.head || 'PPE'] || 0) + num(p.qty) * num(p.rate));
+  const tb = COST_HEADS.reduce((a, h) => a + num(b[h]), 0), ts = Object.values(spent).reduce((a, x) => a + x, 0), tc = Object.values(committed).reduce((a, x) => a + x, 0);
+  const pv = num(S.settings.projectValue);
+  return `<div class="stack">${crud('cost')}
+  <div class="kpis"><div class="kpi"><div class="k">Budget</div><div class="v" style="font-size:20px">${inr(tb)}</div>${pv ? `<div class="s">${(tb / pv * 100).toFixed(2)}% of project value</div>` : ''}</div><div class="kpi"><div class="k">Spent</div><div class="v" style="font-size:20px">${inr(ts)}</div></div><div class="kpi"><div class="k">Committed (approved PRs)</div><div class="v" style="font-size:20px">${inr(tc)}</div></div><div class="kpi${tb && ts + tc > tb ? ' alert' : ''}"><div class="k">Balance</div><div class="v" style="font-size:20px">${inr(tb - ts - tc)}</div></div></div>
+  <div class="panel"><h2>Budget vs spend by head</h2><form data-form="budget"><div class="tw"><table><tr><th>Head</th><th class="num">Budget (₹)</th><th class="num">Spent</th><th class="num">Committed</th><th style="width:30%">Used</th></tr>
+  ${COST_HEADS.map(h => { const bb = num(b[h]), u = (spent[h] || 0) + (committed[h] || 0), pct = bb ? u / bb * 100 : 0; return `<tr><td>${h}</td><td class="num"><input type="number" name="${h}" id="bud_${h.replace(/\W/g, '')}" value="${bb || ''}" min="0" style="width:120px;text-align:right" aria-label="Budget for ${h}"></td><td class="num">${inr(spent[h])}</td><td class="num">${inr(committed[h])}</td><td><div class="bar"><i class="${pct > 100 ? 'over' : ''}" style="width:${Math.min(100, pct)}%"></i></div><span class="small muted">${bb ? Math.round(pct) + '%' : '–'}</span></td></tr>`; }).join('')}</table></div>
+  <div class="row" style="margin-top:10px"><button class="btn" type="submit">Save budget</button></div></form></div>
+  <div class="row" style="justify-content:space-between"><h2 style="margin:0">Expense register</h2><button class="btn pri" data-act="newRec" data-kind="cost">Add expense</button></div>
+  ${list.length ? `<div class="tw"><table><tr><th>Date</th><th>Head</th><th>Description</th><th>Vendor</th><th>Ref</th><th class="num">Amount</th><th></th></tr>${list.map(r => `<tr><td class="mono">${fmtD(r.date)}</td><td>${esc(r.head)}</td><td>${esc(r.desc)}${exTag(r)}</td><td>${esc(r.vendor)}</td><td>${esc(r.ref)}</td><td class="num">${inr(r.amount)}</td><td><button class="btn ghost" data-act="editRec" data-id="${r.id}">Edit</button></td></tr>`).join('')}</table></div>` : '<div class="empty">No expenses recorded yet.</div>'}</div>`;
+};
+FORM.budget = f => { const d = formData(f); const b = {}; for (const h of COST_HEADS) b[h] = num(d[h]); putSettings({ budget: b }); toast('Budget saved'); };
+
+// ---------- Purchase requests ----------
+function nextPrNo() { const y = new Date().getFullYear(); const n = recs('pr').filter(p => (p.prNo || '').includes('/' + y + '/')).length + 1; return `PR/SAFE/${y}/${String(n).padStart(3, '0')}`; }
+VIEWS.pr = () => {
+  const list = recs('pr');
+  return `<div class="stack">${crud('pr')}<datalist id="catList">${CATALOG.map(c => `<option value="${esc(c.item)}">`).join('')}</datalist>
+  <div class="row" style="justify-content:space-between"><h2 style="margin:0">Purchase requests</h2><div class="row"><button class="btn pri" data-act="newRec" data-kind="pr">New PR</button><button class="btn ai" data-act="prSuggest" ${S.ai ? '' : 'disabled'}>Suggest PR from open observations</button></div></div>
+  ${aiBox('prSug')}
+  ${list.length ? `<div class="tw"><table><tr><th>PR no.</th><th>Date</th><th>Item</th><th class="num">Qty</th><th class="num">Amount</th><th>Urgency</th><th>Status</th><th></th></tr>${list.map(r => `<tr><td class="mono">${esc(r.prNo)}</td><td class="mono">${fmtD(r.date)}</td><td>${esc(r.item)}${exTag(r)}<div class="small muted">${esc(r.spec)}</div></td><td class="num">${esc(r.qty)} ${esc(r.unit)}</td><td class="num">${inr(num(r.qty) * num(r.rate))}</td><td>${r.urgency === 'Normal' ? 'Normal' : sevTag(r.urgency === 'Emergency' ? 'Critical' : 'High').replace(/>[^<]+</, '>' + esc(r.urgency) + '<')}</td>
+  <td><select data-chg="prStatus" data-id="${r.id}" aria-label="Status">${['Draft', 'Submitted', 'Approved', 'Ordered', 'Received', 'Rejected'].map(s => `<option${r.status === s ? ' selected' : ''}>${s}</option>`).join('')}</select></td>
+  <td><button class="btn ghost" data-act="editRec" data-id="${r.id}">Edit</button><button class="btn ghost" data-act="prFile" data-id="${r.id}">PR form</button></td></tr>`).join('')}</table></div>` : '<div class="empty">No purchase requests yet.</div>'}</div>`;
+};
+AFTER.pr = () => {
+  const it = $('#pr_item'); if (!it) return;
+  it.onchange = () => { const c = CATALOG.find(x => x.item === it.value); if (!c) return; const f = it.form; if (!f.spec.value) f.spec.value = c.spec; f.unit.value = c.unit; if (!f.rate.value) f.rate.value = c.rate; };
+};
+CHG.prStatus = el => {
+  const r = S.recs.get(el.dataset.id); r.status = el.value; put(r);
+  if (el.value === 'Received' && !r.costBooked) { r.costBooked = true; put({ kind: 'cost', date: today(), head: r.head || 'PPE', desc: `${r.item} × ${r.qty} ${r.unit} (${r.prNo})`, amount: num(r.qty) * num(r.rate), ref: r.prNo }); put(r); toast('Booked to the safety cost register'); }
+};
+ACT.prFile = el => {
+  const r = S.recs.get(el.dataset.id), s = S.settings;
+  saveFile(`${(r.prNo || 'PR').replace(/\//g, '-')}.html`, docWrap('Purchase Request ' + r.prNo, `<h1>Purchase Request – Safety</h1><table><tr><th>PR no.</th><td>${esc(r.prNo)}</td><th>Date</th><td>${fmtD(r.date)}</td></tr><tr><th>Site</th><td>${esc(s.siteName)}</td><th>Required by</th><td>${fmtD(r.needBy)}</td></tr><tr><th>Budget head</th><td>${esc(r.head)}</td><th>Urgency</th><td>${esc(r.urgency)}</td></tr></table>
+  <table><tr><th>#</th><th>Item</th><th>Specification</th><th>Qty</th><th>Unit</th><th>Est. rate</th><th>Amount</th></tr><tr><td>1</td><td>${esc(r.item)}</td><td>${esc(r.spec)}</td><td>${esc(r.qty)}</td><td>${esc(r.unit)}</td><td>${inr(r.rate)}</td><td>${inr(num(r.qty) * num(r.rate))}</td></tr></table>
+  <p><b>Justification:</b> ${esc(r.why || '-')}</p><p>Requested by (Safety): __________ &nbsp; Checked by (Site in-charge): __________ &nbsp; Approved by (Project Manager): __________</p>`));
+};
+ACT.prSuggest = el => {
+  const open = recs('obs').filter(r => r.status !== 'Closed').map(r => `${r.cat} | ${r.sev} | ${r.obs}`);
+  if (!open.length) { toast('No open observations to base a PR on'); return; }
+  aiText('prSug', `From these open safety observations on an Indian construction site with about ${S.settings.workers || 'unknown'} workers, suggest the safety material to purchase. Reply as a table | Item | Specification (IS code) | Qty | Unit | Est. rate ₹ | Why | and then one line on urgency. Use realistic Indian market rates and say they are estimates.\nObservations:\n${open.join('\n').slice(0, 30000)}`, el);
+};
+
+// ---------- Compliance ----------
+VIEWS.compliance = () => {
+  const groups = [...new Set(COMPLIANCE.map(c => c.grp))];
+  const opts = ['Not assessed', 'Compliant', 'Partial', 'Non-compliant', 'Not applicable'];
+  return `<div class="stack"><div class="kpis"><div class="kpi"><div class="k">Compliance score</div><div class="v">${complianceScore()}%</div><div class="s">Partial counts as half</div></div>
+  ${['Non-compliant', 'Partial', 'Not assessed'].map(s => `<div class="kpi${s === 'Non-compliant' && COMPLIANCE.some(c => S.recs.get('cmp_' + c.code)?.status === s) ? ' alert' : ''}"><div class="k">${s}</div><div class="v">${COMPLIANCE.filter(c => (S.recs.get('cmp_' + c.code)?.status || 'Not assessed') === s).length}</div></div>`).join('')}</div>
+  ${groups.map(g => `<div class="panel"><h2>${g}</h2><div class="tw"><table><tr><th>Requirement</th><th>Reference</th><th>Frequency</th><th>Status</th><th>Next due</th><th>Owner</th><th>Evidence / remarks</th></tr>
+  ${COMPLIANCE.filter(c => c.grp === g).map(c => { const r = S.recs.get('cmp_' + c.code) || {}; const st = r.status || 'Not assessed'; return `<tr><td style="min-width:200px"><b>${esc(c.item)}</b>${exTag(r)}</td><td class="small" style="min-width:200px">${esc(L(c.law))}</td><td class="small">${esc(c.freq)}</td>
+  <td><select data-chg="cmp" data-code="${c.code}" data-k="status" aria-label="Status">${opts.map(o => `<option${o === st ? ' selected' : ''}>${o}</option>`).join('')}</select></td>
+  <td><input type="date" data-chg="cmp" data-code="${c.code}" data-k="due" value="${esc(r.due || '')}" style="width:140px" aria-label="Next due"></td>
+  <td><input data-chg="cmp" data-code="${c.code}" data-k="owner" value="${esc(r.owner || '')}" style="width:120px" aria-label="Owner"></td>
+  <td><input data-chg="cmp" data-code="${c.code}" data-k="remarks" value="${esc(r.remarks || '')}" style="min-width:160px" aria-label="Remarks"></td></tr>`; }).join('')}</table></div></div>`).join('')}
+  <div class="panel flat"><h3>Check a specific question</h3><form class="f" data-form="cmpAsk"><div class="fld full"><label for="cmpq">Ask about any compliance requirement</label><input id="cmpq" name="q" placeholder="Do we need a crèche with 38 women workers in Maharashtra?"></div><div class="actions"><button class="btn pri ai" type="submit" ${S.ai ? '' : 'disabled'}>Ask Claude</button></div></form>${aiOff()}${aiBox('cmpAns')}</div></div>`;
+};
+CHG.cmp = el => { const id = 'cmp_' + el.dataset.code; const r = S.recs.get(id) || { id, kind: 'compliance', code: el.dataset.code }; r[el.dataset.k] = el.value; if (el.dataset.k === 'status') r.date = today(); put(r, { quiet: el.tagName !== 'SELECT' }); };
+FORM.cmpAsk = f => { const q = formData(f).q; if (!q) return; aiText('cmpAns', `Answer this statutory compliance question for a construction site in India: "${q}". Give the short answer first, then the legal basis (Act, section/rule, State variations to check), what records or registers are needed, and the practical steps. Flag anything that depends on the State's notified rules.`, f.querySelector('button')); };
+
+// ---------- Library ----------
+VIEWS.library = () => {
+  const q = (S.ui.libQ || '').toLowerCase();
+  const v = VIOL.filter(x => !q || (x.title + x.cat + x.hazard).toLowerCase().includes(q));
+  const laws = Object.entries(LAW).filter(([, t]) => !q || t.toLowerCase().includes(q));
+  return `<div class="stack"><div class="panel"><div class="fld"><label for="libQ">Search violations, Acts, Rules and IS codes</label><input id="libQ" value="${esc(S.ui.libQ || '')}" placeholder="harness, IS 3764, crèche…"></div>
+  <p class="small muted" style="margin-top:8px">Section numbers are shown only where well established. The OSH Code 2020 consolidates the BOCW Act and Factories Act; apply whichever your State has notified, and always check State rules and the latest amendments before quoting in a notice.</p></div>
+  <div class="panel"><h2>Common violations (${v.length})</h2>${v.map(x => `<details style="padding:8px 0;border-bottom:1px solid var(--line)"><summary>${esc(x.title)} ${sevTag(x.sev)}</summary>${vCard(x)}</details>`).join('') || '<p class="muted">No match.</p>'}</div>
+  <div class="panel"><h2>Acts, Rules and standards (${laws.length})</h2>${laws.map(([, t]) => `<div class="law">${esc(t)}</div>`).join('') || '<p class="muted">No match.</p>'}</div></div>`;
+};
+AFTER.library = () => { const i = $('#libQ'); i.oninput = () => { S.ui.libQ = i.value; const pos = i.selectionStart; render(); const j = $('#libQ'); j.focus(); j.setSelectionRange(pos, pos); }; };
+
+// ---------- Assistant ----------
+VIEWS.assistant = () => {
+  const c = S.ui.chat || (S.ui.chat = []);
+  return `<div class="panel"><h2>Ask the safety assistant</h2><p class="small muted">Ask anything: a legal requirement, a permit format, a notice to a contractor, a safety talk, an analysis of your open items. The assistant sees a summary of this site’s register.</p>
+  <div class="chat" id="chat">${c.length ? c.map(m => `<div class="msg ${m.role === 'user' ? 'u' : 'a'}">${m.role === 'user' ? esc(m.content) : md(m.content)}</div>`).join('') : `<div class="muted small">Try: “Draft a warning letter to the shuttering contractor for repeated no-harness cases” or “What registers must we maintain under BOCW?”</div>`}${S.ui.chatBusy ? '<div class="msg a think" id="chatLive">Thinking…</div>' : ''}</div>
+  <form class="row" data-form="chat" style="margin-top:12px;flex-wrap:nowrap"><label for="chatIn" class="muted" hidden>Message</label><textarea id="chatIn" name="m" rows="2" style="min-height:44px" placeholder="Type your question…"></textarea><button class="btn pri" type="submit" ${S.ai && !S.ui.chatBusy ? '' : 'disabled'}>Send</button></form>${aiOff()}</div>`;
+};
+AFTER.assistant = () => { const ch = $('#chat'); ch.scrollTop = ch.scrollHeight; const t = $('#chatIn'); t.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); t.form.requestSubmit(); } }; };
+function siteDigest() {
+  const open = recs('obs').filter(r => r.status !== 'Closed');
+  return `Site register digest: ${open.length} open observations (${SEVS.map(s => s + ' ' + open.filter(o => o.sev === s).length).join(', ')}). Top open items: ${open.slice(0, 15).map(o => `[${o.sev}] ${o.obs} @${o.location}`).join('; ')}. Incidents total: ${recs('incident').length}. Compliance score ${complianceScore()}%. Escalations pending: ${escalations().length}.`;
+}
+FORM.chat = async f => {
+  const m = formData(f).m.trim(); if (!m || !S.ai) return;
+  const c = S.ui.chat; c.push({ role: 'user', content: m }); S.ui.chatBusy = true; render();
+  const lead = { role: 'user', content: GROUND + '\n' + siteCtx() + '\n' + siteDigest() + '\nAnswer the safety manager’s questions below.' };
+  try {
+    const { text } = await S.ai([lead, ...c.slice(-12)], { cache: false, onText: ({ text }) => { const l = $('#chatLive'); if (l) { l.classList.remove('think'); l.innerHTML = md(text); } } });
+    c.push({ role: 'assistant', content: text });
+  } catch (e) { c.push({ role: 'assistant', content: e.text || aiErr(e) }); }
+  S.ui.chatBusy = false; render();
+};
+
+// ---------- Settings ----------
+VIEWS.settings = () => {
+  const s = S.settings, ex = [...S.recs.values()].filter(r => r.example).length;
+  return `<div class="stack"><div class="panel"><h2>Site details</h2><form class="f" data-form="settings">
+  ${fields('set', [{ k: 'siteName', l: 'Site / project name' }, { k: 'location', l: 'Location' }, { k: 'client', l: 'Client' }, { k: 'contractor', l: 'Main contractor' },
+    { k: 'workers', l: 'Workers on site (average)', t: 'number' }, { k: 'manHours', l: 'Man-hours worked to date', t: 'number' }, { k: 'projectValue', l: 'Project value (₹)', t: 'number' }, { k: 'lastLTI', l: 'Date of last LTI (if any)', t: 'date' }], s)}
+  <div class="fld full"><label>Escalation matrix</label></div>
+  ${LEVELS.map(l => `<div class="fld"><label for="e_${l}_role">${l} role</label><input id="e_${l}_role" name="${l}_role" value="${esc(s.esc[l]?.role)}"></div><div class="fld"><label for="e_${l}_name">${l} name</label><input id="e_${l}_name" name="${l}_name" value="${esc(s.esc[l]?.name)}"></div><div class="fld"><label for="e_${l}_contact">${l} e-mail / phone</label><input id="e_${l}_contact" name="${l}_contact" value="${esc(s.esc[l]?.contact)}"></div><div class="fld"></div>`).join('')}
+  <div class="actions"><button class="btn pri" type="submit">Save settings</button></div></form></div>
+  ${window.claude?.use ? '' : `<div class="panel"><h2>🤖 AI on this computer</h2><p class="small muted">Outside claude.ai the page uses Google Gemini. Get a free key at aistudio.google.com → Get API key, and paste it here. It is stored only in this browser.</p>
+  <form class="f" data-form="gemKey"><div class="fld full"><label for="gk">Gemini API key</label><input id="gk" name="k" type="password" value="${esc(gemKey())}" placeholder="AIza…"></div><div class="actions"><button class="btn pri" type="submit">Save key</button></div></form></div>`}
+  <div class="panel"><h2>Data</h2><p class="small muted">${S.mode === 'db' ? 'Records are kept in this page’s shared site register, so anyone you share the page with sees the same data.' : 'Records are kept in this browser only. Download a backup regularly.'}</p>
+  <div class="row"><button class="btn" data-act="backup">Download backup (.json)</button>${ex ? `<button class="btn danger" data-act="clearEx">Remove ${ex} example records</button>` : ''}</div></div></div>`;
+};
+FORM.settings = f => {
+  const d = formData(f), esc_ = {};
+  LEVELS.forEach(l => esc_[l] = { role: d[l + '_role'], name: d[l + '_name'], contact: d[l + '_contact'] });
+  putSettings({ siteName: d.siteName, location: d.location, client: d.client, contractor: d.contractor, workers: d.workers, manHours: d.manHours, projectValue: d.projectValue, lastLTI: d.lastLTI, esc: esc_ });
+  toast('Settings saved');
+};
+ACT.backup = () => saveFile('safety-desk-backup-' + today() + '.json', JSON.stringify({ settings: S.settings, records: [...S.recs.values()] }, null, 1));
+ACT.clearEx = async el => {
+  if (!S.ui.confirmEx) { S.ui.confirmEx = true; el.textContent = 'Tap again to remove examples'; return; }
+  S.ui.confirmEx = false;
+  for (const r of [...S.recs.values()].filter(r => r.example)) await del(r.id);
+  toast('Example records removed');
+};
+
+// ---------- Shared actions ----------
+ACT.go = (el, ev) => { ev.preventDefault(); S.route = el.dataset.r; S.ui.edit = null; S.ui.copyFallback = null; try { localStorage.setItem('ssd.route', S.route); } catch {} render(); window.scrollTo(0, 0); };
+ACT.copyAi = el => copy(S.ui[el.dataset.k]?.text || '');
+ACT.saveAi = el => saveFile(el.dataset.k + '-' + today() + '.html', docWrap('Safety Desk', md(S.ui[el.dataset.k]?.text || '')));
+ACT.closeCopy = () => { S.ui.copyFallback = null; render(); };
+
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-act]'); if (!el) return;
+  const fn = ACT[el.dataset.act]; if (!fn) return;
+  if (el.tagName === 'A') ev.preventDefault();
+  fn(el, ev);
+});
+document.addEventListener('submit', ev => { const f = ev.target.closest('form[data-form]'); if (!f) return; ev.preventDefault(); FORM[f.dataset.form]?.(f, ev); });
+document.addEventListener('change', ev => { const el = ev.target.closest('[data-chg]'); if (!el) return; CHG[el.dataset.chg]?.(el, ev); });
+
+// ================= Trackers =================
+// Same registers as the Android app. Records use kind "trk_<id>"; columns with due:1 are watched.
+const OPEN_CLOSED = { k: 'status', l: 'Status', t: 'select', o: ['Open', 'Closed'], show: 1 };
+const TRK = [
+  { id: 'fall', icon: '🪢', title: 'Fall protection tracker', sub: 'Harnesses, lanyards, lifelines, nets, anchors', cols: [
+    { k: 'tag', l: 'Item ID / tag no.', show: 1 },
+    { k: 'type', l: 'Item', t: 'select', o: ['Full-body harness', 'Double lanyard with shock absorber', 'Fall arrester / retractable block', 'Horizontal lifeline', 'Vertical lifeline', 'Safety net', 'Anchor point', 'Edge protection / guard-rail'], show: 1 },
+    { k: 'serial', l: 'Make / serial no. / IS mark' }, { k: 'issuedTo', l: 'Issued to / location', show: 1 }, { k: 'contractor', l: 'Contractor / agency' },
+    { k: 'issueDate', l: 'Issue / installation date', t: 'date' }, { k: 'lastInsp', l: 'Last inspection', t: 'date', d: today },
+    { k: 'nextInsp', l: 'Next inspection due', t: 'date', due: 1 }, { k: 'retire', l: 'Manufacturer expiry / retire by', t: 'date', due: 1 },
+    { k: 'condition', l: 'Condition', t: 'select', o: ['OK – in use', 'Needs repair', 'Quarantined', 'Discarded'], show: 1 },
+    { k: 'inspector', l: 'Inspected by' }, { k: 'remarks', l: 'Remarks', t: 'area' }],
+    report: 'a fall protection equipment status report: totals by item and condition, items overdue for inspection or past retire date, quarantined/discarded items, and actions with owners' },
+  { id: 'equip', icon: '🏗️', title: 'Plant & equipment tracker', sub: 'Cranes, hoists, excavators, DG, welding sets', cols: [
+    { k: 'equipId', l: 'Equipment ID / reg. no.', show: 1 },
+    { k: 'type', l: 'Equipment', t: 'select', o: ['Tower crane', 'Passenger / material hoist', 'Mobile crane / hydra', 'Excavator', 'Backhoe loader (JCB)', 'Concrete pump / boom placer', 'Transit mixer', 'Batching plant', 'DG set', 'Welding machine', 'Grinder / cutter', 'Air compressor', 'Other'], show: 1 },
+    { k: 'make', l: 'Make / model / capacity' }, { k: 'contractor', l: 'Contractor / agency' }, { k: 'location', l: 'Location', show: 1 },
+    { k: 'operator', l: 'Operator name' }, { k: 'operatorValid', l: 'Operator licence / competency valid till', t: 'date', due: 1 },
+    { k: 'docsValid', l: 'Fitness / insurance / PUC valid till', t: 'date', due: 1 },
+    { k: 'lastCheck', l: 'Last inspection', t: 'date', d: today }, { k: 'nextCheck', l: 'Next inspection due', t: 'date', due: 1 },
+    { k: 'status', l: 'Status', t: 'select', o: ['In use', 'Under maintenance', 'Not fit – tagged out', 'Demobilised'], show: 1 }, { k: 'remarks', l: 'Remarks', t: 'area' }],
+    report: 'a plant and equipment status report: equipment on site by type, anything tagged out, inspections, operator competency or documents expired or due within 7 days, and actions with owners' },
+  { id: 'tpi', icon: '🔖', title: 'TPI inspection tracker', sub: 'Third-party / competent-person certificates', cols: [
+    { k: 'equipment', l: 'Equipment / lifting tackle', ph: 'e.g. tower crane TC-2, chain block, slings', show: 1 },
+    { k: 'equipId', l: 'ID / serial no.' }, { k: 'swl', l: 'SWL / capacity' }, { k: 'agency', l: 'TPI agency / competent person' }, { k: 'certNo', l: 'Certificate no.' },
+    { k: 'inspDate', l: 'Inspection date', t: 'date', d: today }, { k: 'validTill', l: 'Valid till', t: 'date', due: 1, show: 1 },
+    { k: 'result', l: 'Result', t: 'select', o: ['Fit for use', 'Fit with conditions', 'Not fit'], show: 1 },
+    { k: 'observations', l: 'Observations to close', t: 'area' },
+    { k: 'status', l: 'Status', t: 'select', o: ['Valid', 'Renewal due', 'Expired – stop use', 'Removed from site'], show: 1 }, { k: 'remarks', l: 'Remarks', t: 'area' }],
+    report: "a TPI / statutory examination status report: certificates valid, due within 30 days and expired, 'not fit' or conditional results with open observations, and a stop-use list for anything expired" },
+  { id: 'env', icon: '🌳', title: 'Environment tracker', sub: 'Noise, water, waste, spills, consents', cols: [
+    { k: 'date', l: 'Date', t: 'date', d: today, show: 1 },
+    { k: 'aspect', l: 'Aspect', t: 'select', o: ['Noise level', 'Water consumption', 'Wastewater / STP', 'Construction & demolition waste', 'Hazardous waste (oil, paint, chemicals)', 'Spill', 'Tree / green cover', 'Consent / permit (CTE, CTO, EC)', 'Other'], show: 1 },
+    { k: 'location', l: 'Location' }, { k: 'value', l: 'Measured value / quantity' }, { k: 'unit', l: 'Unit', ph: 'dB(A), KL, tonnes' },
+    { k: 'limit', l: 'Limit / target (with source)' }, { k: 'compliant', l: 'Within limit?', t: 'select', o: ['Yes', 'No', 'Not applicable'], show: 1 },
+    { k: 'action', l: 'Action required', t: 'area' }, { k: 'responsible', l: 'Responsible person' },
+    { k: 'dueDate', l: 'Action / renewal due', t: 'date', due: 1 }, OPEN_CLOSED, { k: 'remarks', l: 'Remarks', t: 'area' }],
+    report: "an environmental performance report: readings against limits, exceedances, waste quantities, consent validity, and open actions. Cite the source of each limit only if it is entered; otherwise mark 'limit to confirm'" },
+  { id: 'air', icon: '🌫️', title: 'Air pollution & dust control tracker', sub: 'PM10 / PM2.5 and dust control measures', cols: [
+    { k: 'date', l: 'Date', t: 'date', d: today, show: 1 }, { k: 'location', l: 'Monitoring location', show: 1 },
+    { k: 'pm10', l: 'PM10 (µg/m³)', t: 'number', show: 1 }, { k: 'pm25', l: 'PM2.5 (µg/m³)', t: 'number', show: 1 },
+    { k: 'aqi', l: 'AQI (if available)' }, { k: 'monitoredBy', l: 'Monitored by (sensor / agency)' },
+    { k: 'measures', l: 'Dust control measures in place', t: 'area', ph: 'water sprinkling, anti-smog gun, wind barrier / green net, covered trucks, wheel wash, covered stockpiles' },
+    { k: 'gaps', l: 'Deficiencies seen', t: 'area' }, { k: 'action', l: 'Action required', t: 'area' }, { k: 'responsible', l: 'Responsible person' },
+    { k: 'dueDate', l: 'Action due', t: 'date', due: 1 }, OPEN_CLOSED],
+    report: "an air pollution and dust control report: PM10/PM2.5 trend by location, days above the limit (state the limit and its source only if verified, else 'limit to confirm'), dust control measures and gaps, and open actions" },
+  { id: 'committee', icon: '🤝', title: 'Safety committee tracker', sub: 'Members and meetings', cols: [
+    { k: 'entry', l: 'Entry', t: 'select', o: ['Member', 'Meeting'], show: 1 }, { k: 'date', l: 'Date (appointment / meeting)', t: 'date', d: today, show: 1 },
+    { k: 'name', l: 'Member name / meeting title', show: 1 },
+    { k: 'role', l: 'Role', t: 'select', o: ['Chairperson', 'Secretary (safety officer)', 'Management representative', 'Worker representative', 'Contractor representative', 'Medical / welfare', 'Not applicable – meeting'] },
+    { k: 'org', l: 'Organisation / trade' }, { k: 'points', l: 'Meeting points / decisions', t: 'area' }, { k: 'actions', l: 'Actions, owners and target dates', t: 'area' },
+    { k: 'next', l: 'Next meeting due', t: 'date', due: 1 }, { k: 'remarks', l: 'Remarks', t: 'area' }],
+    report: 'a safety committee status report: present composition (management vs worker representatives), meetings held, attendance, decisions, open actions and the next meeting date' },
+  { id: 'camp', icon: '🏕️', title: 'Labour camp inspection tracker', sub: 'Accommodation, water, toilets, canteen, crèche', cols: [
+    { k: 'date', l: 'Inspection date', t: 'date', d: today, show: 1 }, { k: 'camp', l: 'Camp / block', show: 1 }, { k: 'contractor', l: 'Contractor / agency' },
+    { k: 'occupants', l: 'Occupants', t: 'number' },
+    { k: 'area', l: 'Area inspected', t: 'select', o: ['Accommodation / rooms', 'Drinking water', 'Toilets & bathing', 'Canteen / kitchen', 'Crèche', 'First aid', 'Fire safety', 'Electrical', 'Housekeeping & drainage', 'Pest / vector control', 'Overall'], show: 1 },
+    { k: 'rating', l: 'Condition', t: 'select', o: ['Satisfactory', 'Needs improvement', 'Unsatisfactory'], show: 1 },
+    { k: 'gaps', l: 'Deficiencies', t: 'area' }, { k: 'action', l: 'Action required', t: 'area' }, { k: 'responsible', l: 'Responsible person' },
+    { k: 'dueDate', l: 'Target date', t: 'date', due: 1 }, OPEN_CLOSED],
+    report: 'a labour camp welfare inspection report: condition by area, deficiencies, open actions with owners, and items repeated from earlier inspections' },
+  { id: 'bocw', icon: '⚖️', title: 'BOCW compliance tracker', sub: 'Registration, cess, welfare, registers, returns', cols: [
+    { k: 'requirement', l: 'Requirement', t: 'area', ph: 'e.g. establishment registration, cess payment, worker registration with Board', show: 1 },
+    { k: 'reference', l: 'Legal reference (verified)' }, { k: 'frequency', l: 'Frequency', t: 'select', o: ['One-time', 'Monthly', 'Quarterly', 'Half-yearly', 'Annual', 'On event'] },
+    { k: 'responsible', l: 'Responsible person' }, { k: 'dueDate', l: 'Next due', t: 'date', due: 1, show: 1 },
+    { k: 'evidence', l: 'Evidence / record kept', t: 'area' },
+    { k: 'status', l: 'Status', t: 'select', o: ['Compliant', 'Partly compliant', 'Not compliant', 'Not applicable'], show: 1 }, { k: 'remarks', l: 'Remarks', t: 'area' }],
+    report: "a BOCW compliance status report: each requirement with status, evidence and next due date, gaps, and actions. Use only the legal references entered; flag any blank reference as 'to verify'" },
+];
+TRK.forEach(t => { SPEC['trk_' + t.id] = { label: 'entry', fields: t.cols }; });
+function trkDue(t, r) {
+  const st = (r.status || '') + (r.condition || '');
+  if (/^Closed|Discarded|Demobilised|Removed/.test(st)) return null;
+  const ds = t.cols.filter(c => c.due).map(c => r[c.k]).filter(v => /^\d{4}-\d{2}-\d{2}$/.test(v || '')).sort();
+  return ds.length ? daysBetween(today(), ds[0]) : null;
+}
+const trkOverdue = () => TRK.reduce((a, t) => a + recs('trk_' + t.id).filter(r => (trkDue(t, r) ?? 1) < 0).length, 0);
+const dueFlag = d => d == null ? '' : d < 0 ? `<span class="sev Critical">Overdue ${-d} d</span>` : d <= 7 ? `<span class="sev Medium">Due in ${d} d</span>` : '';
+const cellVal = (c, v) => c.t === 'date' ? fmtD(v) : String(v ?? '');
+function trkTable(t) {
+  const lines = recs('trk_' + t.id).map(r => r.id.slice(-6) + ' | ' + t.cols.map(c => cellVal(c, r[c.k]).replace(/\n/g, '; ')).join(' | '));
+  return `TRACKER DATA – ${t.title} (${lines.length} rows, from the Safety Desk register on ${fmtD(today())}). This is the only data source; do not add rows or figures that are not here.\nID | ${t.cols.map(c => c.l).join(' | ')}\n${lines.join('\n')}`;
+}
+VIEWS.trackers = () => {
+  const t = TRK.find(x => x.id === S.ui.trk);
+  if (!t) return `<div class="stack"><p class="muted">Keep each register up to date here. Dates marked “due” are watched: anything overdue or due within 7 days is flagged.</p>
+    <div class="tiles">${TRK.map((x, i) => {
+      const rows = recs('trk_' + x.id), od = rows.filter(r => (trkDue(x, r) ?? 1) < 0).length, soon = rows.filter(r => { const d = trkDue(x, r); return d != null && d >= 0 && d <= 7; }).length;
+      return `<button class="tile" style="--i:${i}" data-act="trkOpen" data-id="${x.id}"><span class="ico">${x.icon}</span><b>${esc(x.title)}</b><span class="small muted">${esc(x.sub)}</span>
+        <span class="row" style="gap:6px;margin-top:8px"><span class="sev Low">${rows.length} entries</span>${od ? `<span class="sev Critical">${od} overdue</span>` : ''}${soon ? `<span class="sev Medium">${soon} due soon</span>` : ''}</span></button>`;
+    }).join('')}</div></div>`;
+  const kind = 'trk_' + t.id, all = recs(kind), f = S.ui.trkF || 'All';
+  const list = f === 'Overdue' ? all.filter(r => (trkDue(t, r) ?? 1) < 0) : f === 'Due in 7 days' ? all.filter(r => { const d = trkDue(t, r); return d != null && d >= 0 && d <= 7; }) : all;
+  const shown = t.cols.filter(c => c.show);
+  return `<div class="stack">
+  <div class="row"><button class="btn ghost" data-act="trkOpen" data-id="">‹ All trackers</button><h2 style="margin:0">${t.icon} ${esc(t.title)}</h2></div>
+  ${crud(kind)}
+  <div class="row" style="justify-content:space-between"><div class="tabs" style="margin:0">${['All', 'Overdue', 'Due in 7 days'].map(x => `<button data-act="trkFilter" data-f="${x}" aria-pressed="${f === x}">${x}</button>`).join('')}</div>
+  <div class="row"><button class="btn pri" data-act="newRec" data-kind="${kind}">New entry</button><button class="btn" data-act="trkCsv">Export CSV</button></div></div>
+  ${list.length ? `<div class="tw"><table><tr>${shown.map(c => `<th>${esc(c.l)}</th>`).join('')}<th>Due</th><th></th></tr>
+    ${list.map(r => `<tr>${shown.map(c => `<td>${esc(cellVal(c, r[c.k]))}${exTag(c === shown[0] && r)}</td>`).join('')}<td>${dueFlag(trkDue(t, r))}</td><td><button class="btn ghost" data-act="editRec" data-id="${r.id}">Edit</button></td></tr>`).join('')}</table></div>`
+    : `<div class="empty">${all.length ? 'Nothing ' + f.toLowerCase() + '.' : 'No entries yet. Use “New entry” to add the first one.'}</div>`}
+  <div class="panel"><h2>📈 Report from this tracker</h2>${aiOff()}
+    <div class="row"><button class="btn pri ai" data-act="trkAI"${all.length && S.ai ? '' : ' disabled'}>Prepare report with Claude</button></div>
+    <div style="margin-top:12px">${aiBox('trk_' + t.id + '_rep')}</div></div>
+  </div>`;
+};
+ACT.trkOpen = el => { S.ui.trk = el.dataset.id || null; S.ui.edit = null; S.ui.trkF = 'All'; render(); scrollTop(); };
+ACT.trkFilter = el => { S.ui.trkF = el.dataset.f; render(); };
+ACT.trkCsv = () => {
+  const t = TRK.find(x => x.id === S.ui.trk), q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const csv = [['ID', ...t.cols.map(c => c.l)].map(q).join(','), ...recs('trk_' + t.id).map(r => [r.id, ...t.cols.map(c => cellVal(c, r[c.k]))].map(q).join(','))].join('\n');
+  saveFile(t.id + '-tracker-' + today() + '.csv', csv);
+};
+ACT.trkAI = el => {
+  const t = TRK.find(x => x.id === S.ui.trk);
+  aiText('trk_' + t.id + '_rep', `Prepare ${t.report} for the safety manager. Use Indian English, DD-MM-YYYY dates and metric units. Begin with a short summary for management, then tables. Where information is missing, list it under 'Information needed' instead of inventing it.\n\n${trkTable(t)}`, el);
+};
+
+// ================= ISO 45001 & BOCW documents =================
+const PERIODS = ['This month', 'Last 30 days', 'Last 7 days', 'All records'];
+const ISODOCS = [
+  { id: 'iso_mr', icon: '🏅', title: 'ISO 45001 management review report (clause 9.3)', reg: 1, f: [{ k: 'period', l: 'Period', t: 'select', o: PERIODS }, { k: 'details', l: 'Notes', t: 'area' }],
+    ask: 'an ISO 45001:2018 management review report structured on the clause 9.3 inputs (status of previous actions, changes in issues and legal requirements, OH&S policy and objectives performance, incidents, nonconformities and corrective actions, monitoring results, compliance evaluation, audit results, consultation and participation of workers, risks and opportunities, resources) and outputs (decisions, actions, owners, dates). Use only the register data for figures' },
+  { id: 'iso_audit', icon: '🔍', title: 'ISO 45001 internal audit checklist & report (clause 9.2)', f: [{ k: 'scope', l: 'Audit scope / clauses', ph: 'e.g. clauses 5–10 at Tower B' }, { k: 'auditees', l: 'Auditees / departments' }, { k: 'details', l: 'Notes', t: 'area' }],
+    ask: 'an ISO 45001:2018 internal audit checklist mapped to the clauses in scope (clause | requirement summary | audit question | evidence to look for | conformity C/NC/OFI | remarks), followed by an audit report format with findings classification and a corrective action table' },
+  { id: 'iso_legal', icon: '⚖️', title: 'Evaluation of compliance (clause 9.1.2)', f: [{ k: 'scope', l: 'Legal areas', ph: 'BOCW Act & Rules, fire, environment, CLRA…' }, { k: 'workers', l: 'Approx. workers on site', t: 'number' }],
+    ask: 'an evaluation of compliance register for ISO 45001 clause 9.1.2: legal or other requirement | source | applicability | evidence checked | compliance status | action. Mark every requirement you are not certain about as "verify"' },
+  { id: 'iso_obj', icon: '🎯', title: 'OH&S objectives & performance report (clauses 6.2, 9.1)', reg: 1, f: [{ k: 'period', l: 'Period', t: 'select', o: PERIODS }, { k: 'objectives', l: 'Objectives and targets', t: 'area', ph: 'zero fatal incidents; close 90% of findings by target date; 100% induction' }],
+    ask: "an OH&S objectives and performance report: objective | target | measure | actual (from register data only) | status | action. Mark any measure not available in the data as 'not recorded'" },
+  { id: 'iso_nc', icon: '🛠️', title: 'Nonconformity & corrective action report (clause 10.2)', f: [{ k: 'nc', l: 'Nonconformity / incident', t: 'area' }, { k: 'location', l: 'Location' }, { k: 'source', l: 'Source', t: 'select', o: ['Internal audit', 'Inspection', 'Incident', 'Worker report', 'Client / external audit'] }],
+    ask: 'an ISO 45001 clause 10.2 nonconformity and corrective action report: description, immediate correction, root cause analysis (5 Whys), corrective actions with owners and dates, effectiveness check, and updates needed to the HIRA or procedures' },
+  { id: 'bocw_status', icon: '📑', title: 'BOCW compliance status report', reg: 1, f: [{ k: 'period', l: 'Period', t: 'select', o: PERIODS }, { k: 'workers', l: 'Workers on site', t: 'number' }, { k: 'status', l: 'Current status notes', t: 'area', ph: 'registration, cess paid up to, worker registration with Board, welfare facilities, safety officer, medical checks…' }],
+    ask: 'a BOCW Act 1996 and Central/Maharashtra Rules compliance status report for management: each requirement with legal source, status from the notes, evidence, gaps and actions. Never invent rule or form numbers; mark uncertain ones "verify"' },
+  { id: 'bocw_registers', icon: '📚', title: 'BOCW registers, forms & returns checklist', f: [{ k: 'workers', l: 'Approx. workers on site', t: 'number' }, { k: 'state', l: 'State', t: 'select', o: ['Maharashtra', 'Other (mention in notes)'] }, { k: 'details', l: 'Notes', t: 'area' }],
+    ask: 'a checklist of the registers, records, notices, forms and returns a building contractor must maintain under the BOCW Act 1996 and the applicable Rules: name, legal source, who maintains it, frequency, where kept. Mark anything you are not certain about "verify"' },
+  { id: 'committee', icon: '🤝', title: 'Safety committee formation', f: [{ k: 'workers', l: 'Workers on site', t: 'number' }, { k: 'members', l: 'Proposed members (name – designation)', t: 'area' }, { k: 'frequency', l: 'Meeting frequency', t: 'select', o: ['Monthly', 'Fortnightly', 'Quarterly'] }],
+    ask: 'a safety committee formation pack: (1) applicability and composition requirements with their legal source (BOCW Rules and any Maharashtra rules), marked "verify" where uncertain; (2) constitution order / office memo; (3) members table with roles and equal management and worker representation where required; (4) terms of reference and duties; (5) meeting procedure and standing agenda; (6) display notice for workers. Never invent the worker threshold or rule number' },
+  { id: 'camp_check', icon: '🏕️', title: 'Labour camp inspection checklist', f: [{ k: 'camp', l: 'Camp / block' }, { k: 'occupants', l: 'Occupants', t: 'number' }, { k: 'contractor', l: 'Contractor / agency' }],
+    ask: 'a labour camp inspection checklist: accommodation (space, ventilation, lighting, bedding), drinking water (quality testing, storage, cooling), toilets and bathing (ratio, cleanliness, separate for women), canteen/kitchen hygiene, crèche, first aid, fire safety, electrical safety, drainage and waste, pest/vector control, security and emergency contacts. Columns: Item | Requirement | Yes/No/NA | Remarks | Action' },
+  { id: 'camp_docs', icon: '🏠', title: 'Labour camp documents & welfare compliance', f: [{ k: 'camp', l: 'Camp / site' }, { k: 'occupants', l: 'Occupants', t: 'number' }, { k: 'state', l: 'State', t: 'select', o: ['Maharashtra', 'Other (mention in notes)'] }, { k: 'details', l: 'Notes', t: 'area' }],
+    ask: 'a labour camp documents pack: the welfare facilities required (housing, drinking water, latrines and urinals, canteen, crèche, first aid) with legal source, the records to keep (occupancy register, water test reports, pest control, fire extinguisher checks, medical camp records, cleaning schedules), and a camp rules notice in English and Hindi. Never invent numbers or rule references; mark uncertain ones "verify"' },
+];
+function regData(period) {
+  const t = today(), from = period === 'Last 7 days' ? addDays(t, -6) : period === 'This month' ? t.slice(0, 8) + '01' : period === 'Last 30 days' ? addDays(t, -29) : '';
+  const st = stats(from, t);
+  return `REGISTER DATA from Safety Desk (${from ? fmtD(from) : 'all'} to ${fmtD(t)}). Only data source; do not add figures that are not here.
+Observations: ${st.obs.length} (closed ${st.closed}); by severity ${SEVS.map(s => s + ' ' + st.bySev[s]).join(', ')}; by category ${Object.entries(st.byCat).map(([k, v]) => k + ' ' + v).join(', ') || 'none'}.
+Incidents: ${st.inc.length}${st.inc.length ? ' – ' + st.inc.map(i => `${fmtD(i.date)} ${i.type} at ${i.location || '?'} (${i.status})`).join('; ') : ''}.
+Training: ${st.tr.length} sessions, ${Math.round(st.trainHrs)} man-hours. Meetings: ${st.meet.length}. Statutory compliance score: ${complianceScore()}%.
+Tracker items overdue: ${trkOverdue()}. Safe man-hours (settings): ${S.settings.manHours || 'not entered'}.`;
+}
+VIEWS.isodocs = () => {
+  const d = ISODOCS.find(x => x.id === S.ui.isoDoc);
+  if (!d) return `<div class="stack"><p class="muted">Ready-made ISO 45001:2018 and BOCW documents. Reports marked “uses register” take their figures from the records in this page.</p>
+    <div class="tiles">${ISODOCS.map((x, i) => `<button class="tile" style="--i:${i}" data-act="isoOpen" data-id="${x.id}"><span class="ico">${x.icon}</span><b>${esc(x.title)}</b>${x.reg ? '<span class="small muted">📋 uses register</span>' : ''}</button>`).join('')}</div></div>`;
+  return `<div class="stack"><div class="row"><button class="btn ghost" data-act="isoOpen" data-id="">‹ All documents</button><h2 style="margin:0">${d.icon} ${esc(d.title)}</h2></div>
+  <div class="panel">${aiOff()}<form class="f" data-form="isoGen">${fields('iso', d.f, S.ui.isoVals || {})}
+  <div class="actions"><button class="btn pri ai" type="submit"${S.ai ? '' : ' disabled'}>Prepare with Claude</button></div></form>
+  <div style="margin-top:14px">${aiBox('iso_' + d.id)}</div></div></div>`;
+};
+ACT.isoOpen = el => { S.ui.isoDoc = el.dataset.id || null; S.ui.isoVals = {}; render(); scrollTop(); };
+FORM.isoGen = f => {
+  const d = ISODOCS.find(x => x.id === S.ui.isoDoc), v = S.ui.isoVals = formData(f);
+  const inputs = d.f.map(x => `- ${x.l}: ${v[x.k] || '(not provided)'}`).join('\n');
+  aiText('iso_' + d.id, `Prepare a ${d.title} for the safety manager. Produce ${d.ask}.\nUse Indian English, DD-MM-YYYY dates and metric units. Where information is missing, list it under 'Information needed' instead of inventing it.\n\nInputs:\n${inputs}${d.reg ? '\n\n' + regData(v.period) : ''}`, f.querySelector('button[type=submit]'));
+};
+
+// ================= Safety message of the day =================
+const TIPS = [
+  ['mand', '⛑️', 'Helmet with chin strap fastened at all times on site.'],
+  ['mand', '🦺', 'Full-body harness with double lanyard, anchored at all times when working at height.'],
+  ['warn', '⚡', 'Isolate and lock out before any work on panels, DBs or cables.'],
+  ['warn', '🏗️', 'Stay out of the crane swing radius and never stand under a suspended load.'],
+  ['proh', '🚬', 'No smoking near hot work, fuel stores or flammable material.'],
+  ['fire', '🧯', 'Keep a charged extinguisher within reach of every hot-work job.'],
+  ['safe', '➕', 'Know your nearest first-aid box, first-aider and assembly point.'],
+  ['warn', '🕳️', 'Cover, barricade and mark every floor opening and shaft.'],
+  ['mand', '🥾', "Safety shoes on site: nails and falling objects don't give warnings."],
+  ['proh', '📵', 'No phone use while operating machinery or working at an edge.'],
+  ['mand', '🥽', 'Goggles and face shield for grinding, cutting and chipping.'],
+  ['warn', '🧱', 'Never overload slabs or scaffolds with stacked material.'],
+];
+const SIGN_LABEL = { mand: 'Mandatory', warn: 'Warning', proh: 'Prohibited', fire: 'Fire safety', safe: 'Safe condition' };
+function tipCard() {
+  const doy = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 864e5);
+  const i = ((S.ui.tip ?? doy) % TIPS.length + TIPS.length) % TIPS.length, [k, sym, msg] = TIPS[i];
+  return `<button class="tip ${k}" data-act="nextTip" data-i="${i}"><span class="sign ${k}"><span>${sym}</span></span><span class="b"><span class="lbl">Safety message · ${SIGN_LABEL[k]}</span><span class="msg">${esc(msg)}</span><span class="small muted">Click for the next one ›</span></span></button>`;
+}
+ACT.nextTip = el => { S.ui.tip = Number(el.dataset.i) + 1; render(); };
+
+// ================= Standalone mode: Google Gemini =================
+// Outside claude.ai there is no Claude runtime, so the page uses the user's own free Gemini key (kept in this browser only).
+const GEM_MODELS = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite'];
+const gemKey = () => { try { return localStorage.getItem('ssd.gemKey') || ''; } catch { return ''; } };
+async function gemCall(contents, onText) {
+  let last;
+  for (const m of GEM_MODELS) {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:streamGenerateContent?alt=sse`, {
+      method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': gemKey() },
+      body: JSON.stringify({ contents, generationConfig: { maxOutputTokens: 32000 } }) }).catch(e => ({ ok: false, status: 0, json: async () => ({ error: { message: e.message } }) }));
+    if (!r.ok) {
+      let msg = ''; try { msg = (await r.json()).error.message; } catch {}
+      last = { code: r.status === 429 ? 'gem_limit' : 'gemini', message: `Gemini ${r.status || 'network error'}: ${msg}` };
+      if ([429, 404, 503].includes(r.status)) continue;
+      throw last;
+    }
+    const rd = r.body.getReader(), dec = new TextDecoder(); let buf = '', text = '';
+    for (;;) {
+      const { done, value } = await rd.read(); if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let i; while ((i = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+        if (!line.startsWith('data:')) continue;
+        try { for (const p of JSON.parse(line.slice(5)).candidates?.[0]?.content?.parts || []) if (p.text && !p.thought) { text += p.text; onText?.({ text }); } } catch {}
+      }
+    }
+    if (!text) throw { code: 'gemini', message: 'Gemini returned an empty answer.' };
+    return m === GEM_MODELS[0] ? text : text + `\n\n_(Answered by ${m}: the default model was over its free limit.)_`;
+  }
+  throw last;
+}
+async function gemAI(input, o = {}) {
+  let contents;
+  if (Array.isArray(input)) contents = input.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }));
+  else {
+    const parts = [];
+    for (const f of o.images ? [].concat(o.images) : []) parts.push({ inline_data: { mime_type: 'image/jpeg', data: (await shrink(f, 1568, .85)).split(',')[1] } });
+    parts.push({ text: input }); contents = [{ role: 'user', parts }];
+  }
+  return { text: await gemCall(contents, o.onText) };
+}
+gemAI.json = async (p, o = {}) => {
+  const { text } = await gemAI(p + '\nReply with JSON only, without code fences.', o);
+  const m = text.match(/[\[{][\s\S]*[\]}]/); if (!m) throw { code: 'invalid_json' };
+  try { return JSON.parse(m[0]); } catch { throw { code: 'invalid_json' }; }
+};
+function useGemini() { if (gemKey()) { S.ai = gemAI; S.imgOK = true; S.aiState = 'ready'; S.aiName = 'Gemini'; } else { S.ai = null; S.aiState = 'off'; S.aiName = ''; } }
+FORM.gemKey = f => { try { localStorage.setItem('ssd.gemKey', formData(f).k.trim()); } catch {} useGemini(); toast(gemKey() ? 'Gemini key saved in this browser' : 'Key removed'); render(); };
+// Plain browser download when the page is not running inside claude.ai.
+async function browserSave(filename, data) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data], { type: /\.csv$/.test(filename) ? 'text/csv' : /\.json$/.test(filename) ? 'application/json' : 'text/html' }));
+  a.download = filename; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); toast('Downloaded ' + filename);
+}
+
+// ================= Boot =================
+loadLocal();
+render();
+(async () => {
+  if (!window.claude?.use) { useGemini(); render(); return; }
+  const [d, sm, dl] = await Promise.all(['db', 'sample', 'downloads'].map(n => claude.use(n).catch(() => null)));
+  S.ai = sm; S.dl = dl; S.aiState = sm ? 'ready' : 'off';
+  if (sm) try { S.imgOK = !!(await sm.limits()).images; } catch {}
+  if (d) {
+    db = d; col = db.collection('records'); cfg = db.doc('config/site'); S.mode = 'db';
+    S.recs = new Map();
+    col.onSnapshot(snap => { S.recs = new Map(snap.docs.map(x => [x.id, { ...x.data(), id: x.id }])); refresh(); }, e => toast('Live sync stopped: ' + (e.message || e.code)));
+    cfg.onSnapshot(s => { if (s.exists) S.settings = { ...structuredClone(DEFAULT_SETTINGS), ...s.data() }; refresh(); }, () => {});
+  }
+  render();
+})();
+</script>
