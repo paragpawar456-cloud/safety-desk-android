@@ -33,3 +33,6 @@ Fall protection, plant & equipment, TPI inspection, environment, air pollution &
 
 ## ISO 45001 & BOCW documents
 Management review (9.3), internal audit (9.2), evaluation of compliance (9.1.2), objectives & performance (6.2, 9.1), nonconformity & corrective action (10.2), BOCW compliance status, BOCW registers & returns checklist, safety committee formation, labour camp checklist and labour camp documents.
+
+## Web version (laptop)
+https://paragpawar456-cloud.github.io/safety-desk-android/ — served from the `gh-pages` branch (built from `/mnt/project-files/safety-agent`). Outside claude.ai it uses your free Gemini key, stored only in that browser.
