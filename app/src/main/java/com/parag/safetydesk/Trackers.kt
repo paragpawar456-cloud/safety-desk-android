@@ -125,14 +125,15 @@ class TrackersScreen(a: MainActivity) : Screen(a) {
     override val title = "Trackers"
     override fun build(): View = with(a) {
         val root = col(16, muted("Keep each register up to date here. Dates marked ‘due’ are watched: anything overdue or due within 7 days is flagged."))
+        var n = 0
         Trackers.ALL.forEach { t ->
             val rows = store.list(t.kind)
             val od = rows.count { (Trackers.dueIn(t, it) ?: 1) < 0 }
             val soon = rows.count { (Trackers.dueIn(t, it) ?: -1) in 0..7 }
-            root.addView(card(
-                text(t.title, 15f, C.INK, true), muted(t.sub),
-                row(muted("${rows.size} entries   "), if (od > 0) text("$od overdue   ", 12f, C.CRIT, true) else spacer(0), if (soon > 0) text("$soon due soon", 12f, C.MED, true) else spacer(0)),
-            ).apply { setOnClickListener { show(TrackerScreen(this@with, t)) } }.margins(this, top = 8, bottom = 0))
+            val (ic, color) = Icons.tracker(t.id)
+            val stats = row(chip("${rows.size} entries", C.BLUE), if (od > 0) chip("$od overdue", C.CRIT).margins(this, start = 6, bottom = 0, width = ViewGroup.LayoutParams.WRAP_CONTENT) else spacer(0),
+                if (soon > 0) chip("$soon due soon", C.MED).margins(this, start = 6, bottom = 0, width = ViewGroup.LayoutParams.WRAP_CONTENT) else spacer(0)).apply { setPadding(0, dp(6), 0, 0) }
+            root.addView(iconCard(ic, color, t.title, t.sub, stats).apply { setOnClickListener { show(TrackerScreen(this@with, t)) } }.margins(this, top = 10, bottom = 0).enter(n++))
         }
         root
     }
@@ -140,6 +141,7 @@ class TrackersScreen(a: MainActivity) : Screen(a) {
 
 class TrackerScreen(a: MainActivity, private val t: Tracker) : Screen(a) {
     override val title = t.title
+    override val icon = Icons.tracker(t.id).first
     private var filter = "All"
     private var web = false
     private val out = Output(a) { "${t.title} report" }.apply { docKind = "${t.title} report" }
@@ -192,6 +194,7 @@ class TrackerScreen(a: MainActivity, private val t: Tracker) : Screen(a) {
 
 class TrackerItemScreen(a: MainActivity, private val t: Tracker, private val id: String?) : Screen(a) {
     override val title = id ?: "New – ${t.title}"
+    override val icon = Icons.tracker(t.id).first
     override fun build(): View = with(a) {
         val r = id?.let { store.get(it) } ?: JSONObject()
         val f = Form(this)

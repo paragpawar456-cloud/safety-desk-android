@@ -39,6 +39,8 @@ abstract class Screen(val a: MainActivity) {
     open fun onTextFile(text: String) {}
     /** Scrollable screens wrap their content; chat-style screens manage their own scrolling. */
     open val scrolls = true
+    /** Emoji shown before the title in the top bar; blank uses [Icons.SCREENS]. */
+    open val icon: String = ""
 }
 
 class MainActivity : Activity() {
@@ -46,6 +48,7 @@ class MainActivity : Activity() {
     lateinit var ai: Ai
     private val stack = ArrayDeque<Screen>()
     private lateinit var titleView: TextView
+    private lateinit var iconView: TextView
     private lateinit var backView: TextView
     private lateinit var content: FrameLayout
     private val pool = Executors.newCachedThreadPool()
@@ -55,22 +58,24 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         store = Store(this); ai = Ai(this, store)
-        window.statusBarColor = C.INK
+        window.statusBarColor = C.NAVY
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
         backView = text("‹", 30f, 0xFFFFFFFF.toInt(), true).apply {
             setPadding(dp(14), 0, dp(10), dp(4)); setOnClickListener { goBack() }
         }
-        titleView = text("Safety Desk", 19f, 0xFFFFFFFF.toInt(), true)
+        iconView = text("⛑️", 22f).apply { setPadding(dp(12), 0, dp(10), 0) }
+        titleView = text("Safety Desk", 19f, 0xFFFFFFFF.toInt(), true).apply { maxLines = 2 }
         val stripe = View(this).apply {
-            background = android.graphics.drawable.GradientDrawable(android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT, intArrayOf(C.ACCENT, C.ACCENT))
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(4))
+            background = HazardDrawable(dp(10).toFloat())
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(6))
         }
-        val bar = row(backView, titleView).apply {
-            setBackgroundColor(C.INK); setPadding(dp(4), dp(12), dp(16), dp(12)); fitsSystemWindows = true
+        val bar = row(backView, iconView, titleView).apply {
+            background = android.graphics.drawable.GradientDrawable(android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT, intArrayOf(C.NAVY, C.NAVY2))
+            setPadding(dp(4), dp(14), dp(16), dp(14)); fitsSystemWindows = true
         }
         content = FrameLayout(this).apply { setBackgroundColor(C.BG) }
-        val root = col(0, bar, stripe, content).apply { fitsSystemWindows = true; setBackgroundColor(C.INK) }
+        val root = col(0, bar, stripe, content).apply { fitsSystemWindows = true; setBackgroundColor(C.NAVY) }
         content.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
         setContentView(root)
 
@@ -89,13 +94,16 @@ class MainActivity : Activity() {
     private fun render() {
         val s = stack.last()
         titleView.text = s.title
+        iconView.text = s.icon.ifEmpty { Icons.SCREENS[s.title] ?: "⛑️" }
         backView.visibility = if (stack.size > 1) View.VISIBLE else View.GONE
+        iconView.setPadding(dp(if (stack.size > 1) 0 else 12), 0, dp(10), 0)
         content.removeAllViews()
         val v = s.build()
         if (s.scrolls) {
             val sv = ScrollView(this).apply { isFillViewport = true }
             sv.addView(v); content.addView(sv)
         } else content.addView(v)
+        v.alpha = 0f; v.animate().alpha(1f).setDuration(220).start()
     }
 
     fun goBack() { if (stack.size > 1) { stack.removeLast(); render() } else finish() }

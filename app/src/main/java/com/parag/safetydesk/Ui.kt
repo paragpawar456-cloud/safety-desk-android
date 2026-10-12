@@ -17,13 +17,20 @@ import android.widget.TextView
 
 /** Colours and small view builders so screens can be written without XML layouts. */
 object C {
-    const val INK = 0xFF191C21.toInt()
-    const val MUTED = 0xFF5B6470.toInt()
-    const val BG = 0xFFECEEF1.toInt()
+    const val INK = 0xFF16202E.toInt()
+    const val MUTED = 0xFF5E6B7A.toInt()
+    const val BG = 0xFFF2F4F8.toInt()
     const val PANEL = 0xFFFFFFFF.toInt()
-    const val LINE = 0xFFD5D9DF.toInt()
-    const val ACCENT = 0xFFF0A500.toInt()
-    const val ACCENT_SOFT = 0xFFFFF3D1.toInt()
+    const val LINE = 0xFFE1E6EC.toInt()
+    const val LINE_DARK = 0xFFB4BDC8.toInt()
+    const val NAVY = 0xFF0D2A4A.toInt()
+    const val NAVY2 = 0xFF1B4F86.toInt()
+    const val ACCENT = 0xFFFFB300.toInt()
+    const val ACCENT_DARK = 0xFFE08600.toInt()
+    const val ACCENT_SOFT = 0xFFFFF4D6.toInt()
+    const val BLUE = 0xFF1E6FD9.toInt()
+    const val TEAL = 0xFF00897B.toInt()
+    const val PURPLE = 0xFF6A4BC4.toInt()
     const val LOW = 0xFF2E8B57.toInt()
     const val MED = 0xFFB67D00.toInt()
     const val HIGH = 0xFFD35F17.toInt()
@@ -60,23 +67,26 @@ fun Context.text(s: CharSequence, size: Float = 15f, color: Int = C.INK, bold: B
 }
 
 fun Context.h1(s: String) = text(s, 22f, C.INK, true).apply { setPadding(0, dp(4), 0, dp(8)) }
-fun Context.h2(s: String) = text(s, 17f, C.INK, true).apply { setPadding(0, dp(14), 0, dp(6)) }
+fun Context.h2(s: String) = text(s, 17f, C.NAVY, true).apply { setPadding(0, dp(14), 0, dp(6)) }
 fun Context.muted(s: String) = text(s, 13f, C.MUTED)
 
 fun Context.button(label: String, primary: Boolean = false, onClick: () -> Unit): Button = Button(this).apply {
     text = label; isAllCaps = false; textSize = 14f
-    setTextColor(if (primary) C.INK else C.INK)
-    background = rounded(if (primary) C.ACCENT else C.PANEL, dp(8).toFloat(), if (primary) 0 else dp(1))
+    typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+    setTextColor(if (primary) C.NAVY else C.NAVY2)
+    background = if (primary) gradient(C.ACCENT, 0xFFFFC94D.toInt(), dp(12).toFloat()) else rounded(C.PANEL, dp(12).toFloat(), dp(1), C.LINE_DARK)
     setPadding(dp(14), dp(10), dp(14), dp(10))
-    minHeight = dp(44); minimumHeight = dp(44)
+    minHeight = dp(46); minimumHeight = dp(46)
     stateListAnimator = null
+    elevation = if (primary) dp(2).toFloat() else 0f
     setOnClickListener { onClick() }
+    pressable()
 }
 
 fun Context.input(hint: String, value: String = "", lines: Int = 1, number: Boolean = false): EditText = EditText(this).apply {
     this.hint = hint; setText(value); textSize = 15f; setTextColor(C.INK); setHintTextColor(C.MUTED)
-    background = rounded(C.PANEL, dp(8).toFloat(), dp(1))
-    setPadding(dp(12), dp(10), dp(12), dp(10))
+    background = rounded(C.PANEL, dp(12).toFloat(), dp(1))
+    setPadding(dp(14), dp(12), dp(14), dp(12))
     if (lines > 1) {
         inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
         minLines = lines; gravity = Gravity.TOP or Gravity.START
@@ -87,19 +97,20 @@ fun Context.input(hint: String, value: String = "", lines: Int = 1, number: Bool
 fun Context.spinner(options: List<String>, selected: String? = null): Spinner = Spinner(this).apply {
     adapter = ArrayAdapter(this@spinner, android.R.layout.simple_spinner_dropdown_item, options)
     val i = options.indexOf(selected); if (i >= 0) setSelection(i)
-    background = rounded(C.PANEL, dp(8).toFloat(), dp(1))
-    setPadding(dp(4), dp(4), dp(4), dp(4))
+    background = rounded(C.PANEL, dp(12).toFloat(), dp(1))
+    setPadding(dp(6), dp(8), dp(6), dp(8))
 }
 
 fun Context.label(s: String) = text(s.uppercase(), 11f, C.MUTED, true).apply { letterSpacing = 0.06f; setPadding(0, dp(10), 0, dp(4)) }
 
-fun Context.card(vararg kids: View): LinearLayout = col(14, *kids).apply {
-    background = rounded(C.PANEL, dp(10).toFloat(), dp(1))
+fun Context.card(vararg kids: View): LinearLayout = col(16, *kids).apply {
+    background = rounded(C.PANEL, dp(16).toFloat())
+    elevation = dp(2).toFloat()
 }
 
 fun Context.chip(s: String, color: Int): TextView = text(s, 11f, color, true).apply {
-    background = rounded(Color.argb(30, Color.red(color), Color.green(color), Color.blue(color)), dp(4).toFloat())
-    setPadding(dp(7), dp(2), dp(7), dp(2))
+    background = rounded(Color.argb(30, Color.red(color), Color.green(color), Color.blue(color)), dp(10).toFloat())
+    setPadding(dp(9), dp(3), dp(9), dp(3))
 }
 
 fun Context.spacer(h: Int) = View(this).apply { layoutParams = LinearLayout.LayoutParams(1, dp(h)) }

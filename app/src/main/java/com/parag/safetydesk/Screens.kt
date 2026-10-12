@@ -20,6 +20,8 @@ import java.io.File
 // ======================= Home =======================
 class HomeScreen(a: MainActivity) : Screen(a) {
     override val title get() = a.store.pref("project").ifBlank { "Safety Desk" }
+    override val icon = "⛑️"
+    private var tip = java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_YEAR) % Icons.TIPS.size
 
     override fun build(): View = with(a) {
         val s = store
@@ -27,54 +29,106 @@ class HomeScreen(a: MainActivity) : Screen(a) {
         val hi = open.count { Store.riskBand(it.optInt("L", 3) * it.optInt("S", 3)) in setOf("High", "Critical") }
         val overdue = open.count { it.optString("target").let { t -> t.isNotEmpty() && t < Store.today() } }
         val esc = s.escalations()
+        val trkOverdue = Trackers.overdue(s)
         val root = col(16)
-        root.addView(muted("Your construction safety assistant · ${Store.fmt(Store.today())}"))
+        var n = 0
+
+        // Hero: greeting, site status
+        val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+        val greet = when { hour < 12 -> "Good morning"; hour < 17 -> "Good afternoon"; else -> "Good evening" }
+        val name = s.pref("manager").substringBefore(' ').ifBlank { "" }
+        val alerts = esc.size + trkOverdue
+        val status = text(if (alerts == 0) "  ✅  Site status: no open alerts  " else "  ⚠️  $alerts item${if (alerts == 1) "" else "s"} need attention  ", 12.5f,
+            if (alerts == 0) 0xFF0B5D2A.toInt() else 0xFF7A1010.toInt(), true).apply {
+            background = rounded(if (alerts == 0) 0xFFC8F2D4.toInt() else 0xFFFFD6D6.toInt(), dp(14).toFloat()); setPadding(dp(4), dp(5), dp(4), dp(5))
+            if (alerts > 0) setOnClickListener { show(if (esc.isNotEmpty()) EscalationScreen(this@with) else TrackersScreen(this@with)) }
+        }
+        val hero = col(18,
+            row(col(0, text(if (name.isEmpty()) "$greet 👷" else "$greet, $name 👷", 20f, 0xFFFFFFFF.toInt(), true),
+                text(listOf(s.pref("project"), s.pref("location")).filter { it.isNotBlank() }.joinToString(" · ").ifBlank { "Your construction safety assistant" }, 13f, 0xFFC9D6E8.toInt()),
+                text("📅 " + Store.fmt(Store.today()) + (s.pref("manhours").takeIf { it.isNotBlank() }?.let { "   ·   🛡️ $it safe man-hours" } ?: ""), 12.5f, 0xFFC9D6E8.toInt()).apply { setPadding(0, dp(4), 0, 0) },
+            ).margins(this, bottom = 0, weight = 1f), text("🦺", 40f)),
+            status.margins(this, top = 12, bottom = 0, width = ViewGroup.LayoutParams.WRAP_CONTENT),
+        ).apply { background = gradient(C.NAVY, C.NAVY2, dp(20).toFloat()); elevation = dp(4).toFloat() }
+        root.addView(hero.margins(this, bottom = 12).enter(n++))
+
+        // KPIs
         root.addView(row(
-            kpi("Open findings", open.size.toString(), false).margins(this, end = 6, weight = 1f),
-            kpi("High / critical", hi.toString(), hi > 0).margins(this, end = 6, weight = 1f),
-            kpi("Overdue", overdue.toString(), overdue > 0).margins(this, weight = 1f),
-        ).margins(this, top = 10))
+            kpi("📋", "Open findings", open.size, C.BLUE, false) { show(RegisterScreen(this)) }.margins(this, end = 8, weight = 1f),
+            kpi("🔥", "High / critical", hi, C.HIGH, hi > 0) { show(RegisterScreen(this)) }.margins(this, end = 8, weight = 1f),
+            kpi("⏰", "Overdue", overdue, C.CRIT, overdue > 0) { show(RegisterScreen(this)) }.margins(this, weight = 1f),
+        ).margins(this, bottom = 12).enter(n++))
+
         if (esc.isNotEmpty()) {
-            val c = card(text("Needs attention (${esc.size})", 16f, C.CRIT, true))
+            val c = card(row(sign(Sign.WARNING, "!", 34), text("  Needs attention (${esc.size})", 16f, C.CRIT, true)))
             esc.take(3).forEach { (why, r) ->
-                c.addView(text("• $why", 14f, C.INK, true).apply { setPadding(0, dp(6), 0, 0) })
+                c.addView(text("• $why", 14f, C.INK, true).apply { setPadding(0, dp(8), 0, 0) })
                 c.addView(muted("${r.optString("id")} · ${r.optString("condition").ifBlank { r.optString("description") }.take(90)}"))
             }
-            c.addView(button("Review and escalate", primary = true) { show(EscalationScreen(this)) }.margins(this, top = 10, bottom = 0))
-            root.addView(c.margins(this, top = 8, bottom = 12))
+            c.addView(button("📣  Review and escalate", primary = true) { show(EscalationScreen(this)) }.margins(this, top = 12, bottom = 0))
+            c.background = rounded(C.PANEL, dp(16).toFloat(), dp(2), C.CRIT)
+            root.addView(c.margins(this, bottom = 12).enter(n++))
         }
-        val trkOverdue = Trackers.overdue(s)
-        if (trkOverdue > 0) root.addView(card(text("Trackers: $trkOverdue overdue", 15f, C.CRIT, true),
-            muted("Inspections, certificates or actions past their due date.")).apply { setOnClickListener { show(TrackersScreen(this@with)) } }.margins(this, bottom = 12))
-        root.addView(h2("What do you need?"))
-        val tiles = listOf(
-            Triple("Ask the agent", "Any safety, legal or site question") { show(ChatScreen(this)) },
-            Triple("Photo check", "Find violations in a site photo") { show(PhotoScreen(this)) },
-            Triple("WhatsApp import", "Turn group messages into findings") { show(WhatsAppScreen(this)) },
-            Triple("Findings register", "Inspection findings & actions") { show(RegisterScreen(this)) },
-            Triple("Prepare a document", "Checklists, HIRA, TBT, MoM, letters…") { show(CatalogScreen(this)) },
-            Triple("EHS report", "Daily, weekly or monthly") { show(DocScreen(this, Docs.byId("report"))) },
-            Triple("Incidents", "Log and investigate") { show(IncidentsScreen(this)) },
-            Triple("Trackers", "Fall protection, equipment, TPI, environment, air, camp…") { show(TrackersScreen(this)) },
-            Triple("ISO 45001 & BOCW", "Reports, safety committee, labour camp") { show(CatalogScreen(this, "ISO 45001 & BOCW reports")) },
-            Triple("Legal & compliance", "Researched answers with sources") { show(DocScreen(this, Docs.byId("legal"))) },
-            Triple("Saved documents", "${s.list("doc").size} kept on this phone") { show(SavedScreen(this)) },
-            Triple("Settings", "API key, site details, contacts") { show(SettingsScreen(this)) },
-        )
-        tiles.chunked(2).forEach { pair ->
-            val r = row(); pair.forEachIndexed { i, (t, sub, go) ->
-                r.addView(card(text(t, 15f, C.INK, true), muted(sub)).apply { setOnClickListener { go() }; minimumHeight = dp(92) }
-                    .margins(this, end = if (i == 0) 8 else 0, weight = 1f))
+        if (trkOverdue > 0) root.addView(iconCard("📊", C.CRIT, "Trackers: $trkOverdue overdue", "Inspections, certificates or actions past their due date")
+            .apply { setOnClickListener { show(TrackersScreen(this@with)) } }.margins(this, bottom = 12).enter(n++))
+
+        // Safety message of the day: tap for the next one
+        root.addView(tipCard().margins(this, bottom = 4).enter(n++))
+
+        fun grid(items: List<Tile>) {
+            items.chunked(2).forEach { pair ->
+                val r = row(); pair.forEachIndexed { i, t ->
+                    r.addView(tile(t.icon, t.color, t.title, t.sub, t.go).margins(this, end = if (i == 0) 10 else 0, bottom = 0, weight = 1f))
+                }
+                if (pair.size == 1) r.addView(View(this).margins(this, weight = 1f))
+                root.addView(r.margins(this, bottom = 10).enter(n++))
             }
-            if (pair.size == 1) r.addView(View(this).margins(this, weight = 1f))
-            root.addView(r.margins(this, bottom = 8))
         }
+        root.addView(section("🦺", "Daily site work").enter(n++))
+        grid(listOf(
+            Tile("💬", C.BLUE, "Ask the agent", "Any safety, legal or site question") { show(ChatScreen(this)) },
+            Tile("📸", C.CRIT, "Photo check", "Find violations in a site photo") { show(PhotoScreen(this)) },
+            Tile("📲", C.LOW, "WhatsApp import", "Group messages into findings") { show(WhatsAppScreen(this)) },
+            Tile("🚑", C.HIGH, "Incidents", "Log and investigate") { show(IncidentsScreen(this)) },
+        ))
+        root.addView(section("📊", "Registers & trackers").enter(n++))
+        grid(listOf(
+            Tile("📋", C.BLUE, "Findings register", "Inspection findings & actions") { show(RegisterScreen(this)) },
+            Tile("🪢", C.ACCENT_DARK, "Trackers", "Fall protection, equipment, TPI, air, camp…") { show(TrackersScreen(this)) },
+        ))
+        root.addView(section("📄", "Documents & reports").enter(n++))
+        grid(listOf(
+            Tile("📝", C.PURPLE, "Prepare a document", "Checklists, HIRA, SOP, TBT, MoM…") { show(CatalogScreen(this)) },
+            Tile("📈", C.TEAL, "EHS report", "Daily, weekly or monthly") { show(DocScreen(this, Docs.byId("report"))) },
+            Tile("🏅", C.TEAL, "ISO 45001 & BOCW", "Reports, committee, labour camp") { show(CatalogScreen(this, "ISO 45001 & BOCW reports")) },
+            Tile("⚖️", C.PURPLE, "Legal & compliance", "Researched answers with sources") { show(DocScreen(this, Docs.byId("legal"))) },
+            Tile("🗂️", C.BLUE, "Saved documents", "${s.list("doc").size} kept on this phone") { show(SavedScreen(this)) },
+            Tile("⚙️", C.MUTED, "Settings", "AI key, site details, contacts") { show(SettingsScreen(this)) },
+        ))
+        root.addView(text("Safety Desk · AI drafts must be checked before issue", 11.5f, C.LINE_DARK).apply { gravity = Gravity.CENTER; setPadding(0, dp(10), 0, dp(8)) })
         root
     }
 
-    private fun kpi(k: String, v: String, alert: Boolean) = with(a) {
-        card(text(v, 24f, if (alert) C.CRIT else C.INK, true), muted(k)).apply {
-            if (alert) background = rounded(C.PANEL, dp(10).toFloat(), dp(2), C.CRIT)
+    private class Tile(val icon: String, val color: Int, val title: String, val sub: String, val go: () -> Unit)
+
+    private fun tipCard(): View = with(a) {
+        val (sg, sym, msg) = Icons.TIPS[tip]
+        val label = when (sg) { Sign.WARNING -> "WARNING"; Sign.MANDATORY -> "MANDATORY"; Sign.PROHIBITION -> "PROHIBITED"; Sign.SAFE -> "SAFE CONDITION"; Sign.FIRE -> "FIRE SAFETY" }
+        val color = when (sg) { Sign.WARNING -> C.ACCENT_DARK; Sign.MANDATORY -> C.BLUE; Sign.PROHIBITION, Sign.FIRE -> C.CRIT; Sign.SAFE -> C.LOW }
+        val r = row(sign(sg, sym, 56), col(0, text("SAFETY MESSAGE · $label", 11f, color, true).apply { letterSpacing = 0.05f },
+            text(msg, 14.5f, C.INK).apply { setPadding(0, dp(3), 0, dp(2)) }, text("Tap for the next one  ›", 11.5f, C.MUTED)).margins(this, start = 14, bottom = 0, weight = 1f))
+        r.setPadding(dp(14), dp(14), dp(14), dp(14))
+        r.background = rounded(C.PANEL, dp(16).toFloat(), dp(1), tint(color, 90)); r.elevation = dp(1).toFloat()
+        r.setOnClickListener { v -> v.animate().alpha(0f).translationX(-dp(24).toFloat()).setDuration(150).withEndAction { tip = (tip + 1) % Icons.TIPS.size; refresh() }.start() }
+        r.pressable()
+    }
+
+    private fun kpi(icon: String, k: String, v: Int, color: Int, alert: Boolean, go: () -> Unit) = with(a) {
+        val num = text("0", 26f, if (alert) C.CRIT else C.INK, true)
+        if (v > 0) android.animation.ValueAnimator.ofInt(0, v).apply { duration = 700; addUpdateListener { num.text = it.animatedValue.toString() }; start() }
+        col(14, badge(icon, color, 34), num.apply { setPadding(0, dp(6), 0, 0) }, text(k, 12f, C.MUTED)).apply {
+            background = if (alert) rounded(C.PANEL, dp(16).toFloat(), dp(2), C.CRIT) else rounded(C.PANEL, dp(16).toFloat())
+            elevation = dp(2).toFloat(); setOnClickListener { go() }; pressable()
         }
     }
 }
@@ -455,11 +509,13 @@ class CatalogScreen(a: MainActivity, private val group: String? = null) : Screen
     override val title = group ?: "Prepare a document"
     override fun build(): View = with(a) {
         val root = col(16)
+        var n = 0
         Docs.ALL.filter { group == null || it.group == group }.groupBy { it.group }.forEach { (g, items) ->
-            root.addView(h2(g))
+            val (gi, gc) = Icons.group(g)
+            root.addView(section(gi, g).enter(n++))
             items.forEach { d ->
-                root.addView(card(text(d.title, 15f, C.INK, true), muted("Instructions section ${d.section}" + (if (d.register) " · uses your register" else "") + (if (d.web) " · searches the web" else "")))
-                    .apply { setOnClickListener { show(DocScreen(this@with, d)) } }.margins(this, bottom = 6))
+                root.addView(iconCard(gi, gc, d.title, (if (d.register) "📋 uses your register   " else "") + (if (d.web) "🌐 searches the web" else "Section ${d.section}"))
+                    .apply { setOnClickListener { show(DocScreen(this@with, d)) } }.margins(this, bottom = 8).enter(n++))
             }
         }
         root
@@ -468,6 +524,7 @@ class CatalogScreen(a: MainActivity, private val group: String? = null) : Screen
 
 class DocScreen(a: MainActivity, private val d: DocType, private val prefill: Map<String, String> = emptyMap()) : Screen(a) {
     override val title = d.title
+    override val icon = Icons.group(d.group).first
     private var values: Map<String, String> = prefill
     private var web = d.web
     private val out = Output(a) { d.title }.apply { docKind = d.title }
@@ -503,7 +560,7 @@ class SavedScreen(a: MainActivity) : Screen(a) {
         val list = store.list("doc")
         if (list.isEmpty()) root.addView(empty("Documents you keep from any tool appear here."))
         list.forEach { r ->
-            root.addView(card(text(r.optString("title"), 15f, C.INK, true), muted("${r.optString("id")} · ${Store.fmt(r.optString("date"))} · ${r.optString("type")}"))
+            root.addView(iconCard("📄", C.BLUE, r.optString("title"), "${r.optString("id")} · ${Store.fmt(r.optString("date"))} · ${r.optString("type")}")
                 .apply { setOnClickListener { show(DocViewScreen(this@with, r.optString("title"), r.optString("body"), r.optString("id"))) } }.margins(this, bottom = 6))
         }
         root
