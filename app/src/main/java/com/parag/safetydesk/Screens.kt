@@ -38,7 +38,7 @@ class HomeScreen(a: MainActivity) : Screen(a) {
         val greet = when { hour < 12 -> "Good morning"; hour < 17 -> "Good afternoon"; else -> "Good evening" }
         val name = s.pref("manager").substringBefore(' ').ifBlank { "" }
         val alerts = esc.size + trkOverdue
-        val status = text(if (alerts == 0) "  ✅  Site status: no open alerts  " else "  ⚠️  $alerts item${if (alerts == 1) "" else "s"} need attention  ", 12.5f,
+        val status = text(if (alerts == 0) "  ✅  Site status: no open alerts  " else "  ⚠️  $alerts ${if (alerts == 1) "item needs" else "items need"} attention  ", 12.5f,
             if (alerts == 0) 0xFF0B5D2A.toInt() else 0xFF7A1010.toInt(), true).apply {
             background = rounded(if (alerts == 0) 0xFFC8F2D4.toInt() else 0xFFFFD6D6.toInt(), dp(14).toFloat()); setPadding(dp(4), dp(5), dp(4), dp(5))
             if (alerts > 0) setOnClickListener { show(if (esc.isNotEmpty()) EscalationScreen(this@with) else TrackersScreen(this@with)) }
